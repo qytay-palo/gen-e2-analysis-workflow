@@ -1,0 +1,245 @@
+---
+description: Gen-E2 Data Analysis Project Initialization
+model: claude-sonnet-4.5
+---
+
+Your prompt instructions start here:
+
+We will be starting a new Gen-e2 Project
+
+Ask the following questions before proceeding:
+## Questions to Ask
+1. **Project Objectives**: 
+   - What specific business decision will this analysis drive? What happens if we don't do this?
+   - Success Metrics: How will we measure if this project succeeded? What does "good enough" look like?
+
+2. **Technical Environment** (review: tech-stack.md)
+   - Target platform: HEALIX/Databricks or MCDR/CDSW?
+   - Expected data volume and processing needs?
+
+3. **Problem Discovery**:
+   - Who are the key stakeholders, and what are their expectations?
+   - Who will participate in problem identification workshops?
+   - What pain points or questions have stakeholders raised?
+
+## Actions Based on Answers
+
+0. **Create and Activate Virtual Environment**:
+   - Create a Python virtual environment using `uv`:
+     ```bash
+     uv venv .venv
+     ```
+   - Activate the virtual environment:
+     ```bash
+     source .venv/bin/activate  # macOS/Linux
+     # or
+     .venv\Scripts\activate     # Windows
+     ```
+   - Install `uv` if not already installed:
+     ```bash
+     pip install uv
+     ```
+   - Verify the environment is active by checking the Python executable:
+     ```bash
+     which python  # Should show path to .venv/bin/python
+     ```
+
+1. **Update Project Folder Structure**:
+
+**Hybrid Approach:** This structure supports multiple problem statements with shared infrastructure and self-contained analyses.
+
+Below is the base folder structure:
+```
+.
+├── .env.example      # [PHASE 0] Template for environment variables (DB credentials, API keys)
+├── .gitignore        # [PHASE 0] Files to exclude from version control
+├── README.md         # [PHASE 0] Project overview and setup instructions
+├── requirements.txt  # [PHASE 0] Python dependencies (base shared dependencies)
+├── environment.yml   # [PHASE 0] Conda environment (optional)
+├── shared/           # [PHASE 2-10] SHARED INFRASTRUCTURE
+│   ├── README.md     #   Shared files 
+│   ├── src/          # → Reusable production code (library functions)
+│   │   ├── __init__.py
+│   │   ├── utils/           # → Helper functions, config loaders, loggers
+│   │   ├── data_processing/ # → ETL functions, cleaning, validation
+│   │   ├── analysis/        # → Statistical algorithms, trend detection
+│   │   ├── models/          # → Modeling utilities, evaluation metrics
+│   │   ├── visualization/   # → Plotting utilities, chart generators
+│   │   └── orchestration/   # → Multi-agent pipeline orchestration
+│   │
+│   ├── data/         # → Shared data sources (single source of truth)
+│   │   ├── 1_raw/         # → Original immutable source data (READ-ONLY)
+│   │   ├── 2_external/    # → External reference data (demographics, benchmarks)
+│   │   └── schemas/       # → Data schemas and contracts
+│   │
+│   ├── sql/          # → SQL queries and database scripts
+│   │   ├── views/         # → SQL views for common queries
+│   │   ├── procedures/    # → Stored procedures
+│   │   └── extractions/   # → Data extraction queries
+│   │
+│   ├── tests/        # → Tests for shared code
+│   │   ├── unit/          # → Unit tests for shared functions
+│   │   └── fixtures/      # → Test data and fixtures
+│   │
+│   └── config/       # → Shared configuration files
+│       ├── base.yml       # → Base configuration settings
+│       └── databricks.yml # → Platform-specific settings
+├── problem-statements/  # [PHASE 3-10] SELF-CONTAINED ANALYSES
+│   ├── ps-001-{problem-name}/  # 📦 Complete analysis package for Problem Statement 1
+│   │   ├── README.md           # → Problem overview, objectives, workflows
+│   │   │
+│   │   ├── notebooks/          # → Interactive analysis (EXPLORATORY)
+│   │   ├── src/                # → Problem-specific helpers (imports from shared/)
+│   │   │   ├── __init__.py
+│   │   │   └── {problem-name}_utils.py  # → Custom functions for this problem
+│   │   │
+│   │   ├── data/               # → Problem-specific data outputs
+│   │   │   ├── 3_interim/         # → Intermediate processing results
+│   │   │   └── 4_processed/       # → Final analysis-ready datasets
+│   │   │
+│   │   ├── results/            # → Analysis outputs
+│   │   │   ├── tables/            # → Summary statistics, analytical tables
+│   │   │   ├── metrics/           # → KPIs, performance metrics
+│   │   │   └── exports/           # → Stakeholder-ready exports
+│   │   │
+│   │   ├── reports/            # → Visualizations and reports
+│   │   │   ├── figures/           # → Publication-quality visualizations
+│   │   │   ├── dashboards/        # → Interactive dashboards
+│   │   │   └── presentations/     # → Executive summaries
+│   │   │
+│   │   ├── models/             # → Trained models and artifacts
+│   │   │   └── {model_name}_{date}.pkl
+│   │   │
+│   │   ├── config/             # → Problem-specific configuration
+│   │   │   └── config.yml         # → Analysis parameters, settings
+│   │   │
+│   │   ├── scripts/            # → End-to-end pipeline scripts
+│   │   │   └── run_pipeline.py    # → Main orchestration script
+│   │   │
+│   │   ├── tests/              # → Problem-specific tests
+│   │   │   └── integration/       # → Integration tests for pipeline
+│   │   │
+│   │   └── logs/               # → Problem-specific logs
+│   │       ├── etl/               # → ETL execution logs
+│   │       └── errors/            # → Error logs
+│   │
+│   ├── ps-002-{problem-name}/  # 📦 Problem Statement 2
+│   │   └── ... (same structure as ps-001)
+│   │
+│   └── ps-{num}-{problem-name}/  # 📦 Additional problem statements
+│       └── ... (same structure)
+
+```
+
+**Key Principles:**
+1. **Shared Resources** (`shared/`): Reusable code, raw data, SQL queries - write once, use everywhere
+2. **Problem-Specific** (`problem-statement/ps-{num}/`): Self-contained analyses with all outputs
+3. **Import Pattern**: Problem-specific code imports from `shared/src/` for maximum reusability
+4. **Data Strategy**: Raw data in `shared/data/1_raw/` (single source), processed data in problem folders
+5. **Isolation**: Each problem statement can be archived/shared as a complete package
+
+**Reference Documentation:**
+- Detailed structure guide: `docs/project_context/folder-structure-guide.md`
+- Approach comparison: `docs/project_context/folder-structure-comparison.md`
+- Folder creation script: `scripts/shared/create_problem_statement.sh`
+
+**Actions:**
+   - Update the project structure based on the answers to the initial questions
+   - Update README.md file with project overview and hybrid structure explanation
+   - Update docs/index.md to reflect the new structure and provide navigation
+   - Create necessary configuration files in `shared/config/` and problem-specific `config/` directories
+   - Document the technical environment and platform specifics in `docs/project_context/tech-stack.md`
+
+2. **Technical Stack Reference**
+   - **Preferred Technologies**: 
+      - Consult `docs/project_context/tech-stack.md` for approved platforms and tools
+
+   - **Technology Selection Criteria**:
+      1. **Default**: Use technologies from the approved tech stack when they meet project requirements
+      2. **Exception**: Propose alternatives only when the approved stack has clear limitations for specific use cases (e.g., specialized libraries, performance and cost constraints, integration requirements)
+      3. **Justification Required**: When suggesting alternatives, explicitly state why the approved stack is insufficient and how the alternative addresses the gap
+      4. **User Approval**: Obtain explicit approval from project stakeholders before adopting any non-preferred technologies
+
+   - **Actions**:
+      - Update project dependencies, environment setup, and documentation based on selected technologies
+      - Ensure compatibility with target deployment environment
+      - set up appropriate configuration files for the chosen technologies
+      - document the chosen platform in README.md and docs/index.md
+      - include language specific dependencies in requirements.txt or environment.yml
+      - **Mandatory**: Use Polars for data processing and manipulation (preferred over pandas for performance and memory efficiency)
+         - Include `polars` in requirements.txt
+         - Document Polars usage patterns in project documentation
+         - Use Polars for ETL pipelines, data transformations, and feature engineering
+
+3. **Data Dictionary Creation**:
+   - Compile a comprehensive data dictionary in `docs/data_dictionary/` that details all datasets, including:
+     - Field definitions, data types, and value ranges
+     - Data quality notes and known limitations
+     - Lineage tracking (source system → transformations → final table)
+     - Business owners or subject matter experts for each data domain
+     - Refresh frequency and update schedules
+     - Sample data and example values
+   - Create a master index file that links to individual data dictionary files for each major data domain
+   - Ensure the data dictionary is easily navigable and linked from the main documentation index (docs/index.md)
+
+4. **Data Connection Scripts**:
+   - Create connection scripts in `shared/src/data_processing/` for external data sources (e.g., Kaggle, AWS S3, Azure Blob Storage, APIs). Each script should include authentication handling, connection setup, error handling, and logging.
+   - Check if there is alternative credential-free methods exist before implementing the credential-requiring approach. Use environment variables from `.env` for credentials and API keys. 
+   - Include retry logic for network failures and implement rate limiting for API calls. Document connection parameters and authentication methods in comments. Add connection testing functions to validate credentials before data extraction. Consider creating a base connection class that other connectors can inherit from for consistency.
+   - Run the extraction scripts to download data from external sources and place the extracted files in `shared/data/1_raw/` folder. Ensure raw data files remain immutable and are never modified in place. Log all extraction activities including timestamps, file sizes, and data quality checks.
+
+5. **Create TODO.md**:
+   - Create the `TODO.md` file and split it in a way that makes sense for this project.
+   - Format:
+     ```
+     ## Domain
+     [ ] Task to be done (owner)
+     ```
+   - Add tasks for each area of the project, like front-end, back-end, infra, etc.
+   - Ensure tasks are detailed and small enough to be done in a few hours.
+   - Include tasks outside of development, like DevOps tasks, security tasks, etc.
+   - Add lines regarding reviewing all generated files (like Architecture or API doc) and updating them as needed.
+
+6. **Documentation**:
+   - If the project is API-First or has an API, suggest a swagger file `docs/apidoc.yaml` .
+
+7. **Tools and Dependencies**:
+   - Suggest tools that could be useful for this project, like a specific database, etc.
+   - Create all necessary files for the project, like the .gitignore, the .gitattributes, etc.
+   - Depending on the selected language, create the necessary files for it (like a requirements.txt for python).
+   - If a virtual environment is needed, suggest it and create it. Load all dependencies needed for the project.
+
+8. **Version Control**:
+   - Ensure to initialize a Git repository and create an initial commit.
+
+9. **Testing**:
+   - Set up testing frameworks and write initial test cases.
+
+10. **Environment Configuration**:
+   - Provide guidelines for handling environment variables and secrets (e.g., using .env files).
+
+11. **Code Quality**:
+   - Suggest tools for code quality checks, such as linters and formatters.
+
+---
+
+## Final Steps
+1. **Update Project Structure**:
+   - Reorganize folders following the numbered workflow sequence above
+   - Update README.md with project overview, workflow guidance, and technical stack specifications
+   - Update docs/index.md to reflect the new structure and technical environment
+   - Create environment-specific configuration files based on identified tools and platforms
+
+2. **Install Project Dependencies**:
+   - Install all necessary packages and libraries as per the chosen technical stack
+   -
+   - Document installation steps in README.md and requirements.txt/environment.yml
+
+3. **Review**:
+   - Once all the other files are created, and you're clear on the requirements, review the gitignore files, as you might want to add more (like venv or node_modules).
+
+4. **Check File Creation**:
+   - Ensure that all the necessary files and folders have been created as per the project structure.
+
+5. **Deploy Requirements**:
+   - Run the necessary commands to deploy all the dependencies listed in the requirements files (e.g., `npm install` for Node.js, `pip install -r requirements.txt` for Python).
