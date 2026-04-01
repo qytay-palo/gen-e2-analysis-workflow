@@ -33,6 +33,35 @@ df_clean = (
 - Optimize dtypes: `Int32` over `Int64`, `Categorical` for disease names
 - Use lazy evaluation (`scan_csv`, `scan_parquet`) for files > 100MB
 
+## MCP Tools Quick Reference
+
+### Filesystem Tools (REQUIRED)
+Use for ALL file operations:
+
+```
+Read data:     "Use filesystem tools to read shared/data/1_raw/input.csv"
+Create dir:    "Use filesystem tools to create directory problem-statement/ps-001-{name}/results/"
+Write file:    "Use filesystem tools to save results to problem-statement/ps-001-{name}/results/tables/output.csv"
+List files:    "Use filesystem tools to list files in problem-statement/ps-001-{name}/"
+```
+
+### Context7 MCP (REQUIRED for Library/Framework Usage)
+Use for fetching **current documentation** instead of relying on training data:
+
+**🚨 CRITICAL RULE**: When implementing code that uses libraries, frameworks, or APIs, you MUST use Context7 to fetch current documentation. This ensures API accuracy, correct syntax, and version compatibility.
+
+**WHEN TO USE Context7 (MANDATORY):**
+
+| Scenario | Action | Example |
+|----------|--------|----------|
+| **Writing data processing code** | Fetch Polars/pandas docs | `resolve-library-id` → "polars" → `query-docs` "lazy evaluation scan_csv" |
+| **Implementing forecasting models** | Fetch statsmodels/prophet docs | `resolve-library-id` → "statsmodels" → `query-docs` "ARIMA model fit predict" |
+| **Building dashboards** | Fetch Plotly Dash docs | `resolve-library-id` → "plotly" → `query-docs` "Dash app layout callbacks" |
+| **Using ML libraries** | Fetch scikit-learn docs | `resolve-library-id` → "scikit-learn" → `query-docs` "train_test_split cross validation" |
+| **Databricks integration** | Fetch Databricks docs | `resolve-library-id` → "databricks" → `query-docs` "scheduled jobs DBFS" |
+| **API integrations** | Fetch API docs | `resolve-library-id` → "requests" → `query-docs` "session retry timeout" |
+
+
 ## Development Workflow
 
 ### 1. Problem-Driven Approach
