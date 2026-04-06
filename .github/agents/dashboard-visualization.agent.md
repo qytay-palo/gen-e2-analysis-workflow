@@ -54,6 +54,11 @@ Read these before proceeding:
 - **Every tab: ≥1 narrative header + ≥2 charts + ≥1 insight card section** — a tab with only charts is not a story
 - **Chart titles state the insight, not the data label** — `"Nursing workforce grew 23% (2010–2019)"` not `"Nurses by Year"`
 - **Semantic color on KPI deltas is outcome-based, not direction-based**
+- **MANDATORY: Load ALL analysis outputs** — scan `results/` and `data/processed/` directories; load every relevant CSV/Parquet file (YoY growth, sector comparisons, engineered features, model selection summaries, etc.)
+- **MANDATORY: Connect all filter UI elements to callbacks** — dropdown, checklist, slider, or button that does not trigger a callback is a bug
+- **MANDATORY: Handle "all" filter values properly** — when profession/category filter = "all", display all entities OR show meaningful aggregation (never default silently to one entity)
+- **MANDATORY: Display model provenance** — if forecasts use multiple models (ARIMA, Prophet, SARIMAX), show which model was selected for each entity/category in chart title or subtitle
+- **MANDATORY: Use `app.run()` not `app.run_server()`** — ensure main block uses correct Dash method with `debug=True` for development
 
 ---
 
@@ -63,10 +68,15 @@ Read these before proceeding:
 
 1. Read the previous agent's handoff JSON.
 2. Extract every objective and sub-requirement from the problem statement.
-3. Classify every prior analysis output:
+3. **MANDATORY: Complete Data Inventory** — list ALL files in:
+   - `problem-statements/ps-{num}-{name}/results/tables/`
+   - `problem-statements/ps-{num}-{name}/data/4_processed/`
+   - `shared/data/3_interim/`
+4. Classify every prior analysis output:
    - `IN_DASHBOARD` — shown as interactive chart or KPI card
    - `DOWNLOADABLE` — accessible via export button
    - `EXCLUDED` — omitted (document the reason)
+5. **Validation checkpoint**: If EDA created YoY analysis, sector comparisons, or feature engineering outputs, these MUST be loaded — verify each file is included in data loader
 
 Any output that answers a PS objective must be `IN_DASHBOARD` or `DOWNLOADABLE`.
 
@@ -157,12 +167,44 @@ cache = Cache(app.server, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TI
 
 **Data loading**: one `DashboardDataLoader` class loads all sources at startup and returns a `dict[str, pl.DataFrame]`. Gracefully degrades on missing files (returns empty df + logs warning). Never reload inside callbacks.
 
+**CRITICAL: Data Consistency & Naming Conventions**
+Before loading data, verify naming consistency across datasets:
+- Check if entity/category names match between datasets (e.g., historical vs forecast data)
+- Common mismatch: plural vs singular forms (`doctors` vs `doctor`, `nurses_midwives` vs `nurse`)
+- **Solution**: Create normalization functions that map between naming conventions
+- **Pattern**:
+  ```python
+  def normalize_entity_name(name: str) -> str:
+      """Convert from UI/historical format to analysis format."""
+      name_map = {
+          "historical_name_1": "analysis_name_1",
+          "historical_name_2": "analysis_name_2",
+      }
+      return name_map.get(name, name)
+  
+  def denormalize_entity_name(name: str) -> str:
+      """Convert from analysis format back to UI/historical format."""
+      reverse_map = {...}
+      return reverse_map.get(name, name)
+  ```
+- Apply normalization when querying forecast/analysis data, denormalization when querying historical data
+- Document naming mismatches in handoff JSON under `data_naming_issues`
+
+**CRITICAL: Comprehensive Data Loading Checklist**
+Before implementing charts, verify data loader includes:
+- [ ] Primary analysis outputs (historical data, forecasts, gap analysis)
+- [ ] Granular breakdowns (YoY growth, sector-level metrics, category comparisons)
+- [ ] Engineered features (rolling means, trend indicators, ratios, derived metrics)
+- [ ] Model metadata (if forecasting: model_selection_summary with selected model + validation metrics per entity)
+- [ ] Reference data (CAGR tables, growth inflection points, anomaly flags)
+
 **Callbacks**:
 - Global filters → write to `dcc.Store` → all charts read from store
 - Tab-local filters → update only that tab's outputs
 - `prevent_initial_call=True` on all callbacks with dynamic output components
 - `debounce=True` on all `dcc.RangeSlider`
 - Never use Python `global` for shared state
+- **MANDATORY: Every filter UI element MUST have a callback** — if `dcc.Checklist` for chart options exists, callback must read its value and pass to chart function
 
 ---
 
@@ -235,10 +277,32 @@ Match chart type to the question being asked — never choose a chart type for a
 | 95% confidence interval | Shaded band, 10% opacity, same color as forecast line | Outer uncertainty envelope |
 | Scenario selector | `dbc.ButtonGroup` with Best / Base / Worst buttons above chart | Let decision-makers stress-test assumptions |
 | Actual vs Predicted toggle | `dbc.Switch` or `dbc.ButtonGroup` — when both series exist | Compare model accuracy against known history |
+| **Model transparency** | **MANDATORY**: Chart title or subtitle MUST show selected model name + validation metric (e.g., "ARIMA (MAPE: 2.1%)") when multiple models were compared | Builds trust; enables informed interpretation |
 
-**Minimal implementation pattern:**
-```python
-import plotly.graph_objects as go
+**CRITICAL: Forecast Chart Implementation Rules**
+1. **When multiple models exist** (e.g., ARIMA, Prophet, SARIMAX per entity):
+   - Load `model_selection_summary.csv` containing selected_model + validation_mape per entity
+   - Chart title MUST include: `"{entity} Forecast | Model: {selected_model.upper()} (MAPE: {mape:.2f}%)"`
+   - Example: `"Doctor Workforce Forecast | Model: SARIMAX (MAPE: 1.90%)"`
+
+2. **When category filter = "all"**:
+   - Show ALL entities on one chart (multi-line) OR
+   - Show portfolio-level aggregation with clear label (e.g., "Total Workforce Forecast")
+   - NEVER silently default to one entity (e.g., showing only "doctor" when "all" is selected)
+   - Title must reflect scope: `"All Professions Workforce Forecast"` not `"Doctor Workforce Forecast"`
+
+3. **Chart options (CI bands, data points) MUST work**:
+   - If `dcc.Checklist` for chart options exists, callback MUST accept options parameter
+   - Pass `show_ci` and `show_points` boolean flags to chart function
+   - Conditionally render CI bands and markers based on flags
+
+4. **Seamless historical-to-forecast transition**:
+   - NEVER use vertical lines that create visual gaps between historical and forecast data
+   - Connect forecast line to last historical point by prepending historical endpoint to forecast data
+   - Pattern:
+  Get last historical point for seamless connection
+last_hist_year = df_actual["date"].max()
+last_hist_value = df_actual.filter(pl.col("date") == last_hist_year)["value"].item()
 
 # Actual line — solid
 fig.add_trace(go.Scatter(
@@ -247,14 +311,41 @@ fig.add_trace(go.Scatter(
     line=dict(color="#212121", width=2),
 ))
 
-# Forecast line — dotted, same color family
+# Prepend last historical point to forecast for seamless connection
+forecast_dates = [last_hist_year] + df_forecast["date"].to_list()
+forecast_values = [last_hist_value] + df_forecast["value"].to_list()
+
+# Forecast line — dotted, connected to historical endpoint
 fig.add_trace(go.Scatter(
-    x=df_forecast["date"], y=df_forecast["value"],
+    x=forecast_dates, y=forecast_values,
     mode="lines", name="Forecast",
     line=dict(color="#E65100", width=2, dash="dot"),
 ))
 
-# 95% CI band
+# 95% CI band (also starts from last historical point)
+lower_95 = [last_hist_value] + df_forecast["lower_95"].to_list()
+upper_95 = [last_hist_value] + df_forecast["upper_95"].to_list()
+
+fig.add_trace(go.Scatter(
+    x=forecast_dates + forecast_dates[::-1],
+    y=upper_95 + lower_95[::-1],
+    fill="toself", fillcolor="rgba(230,81,0,0.10)",
+    line=dict(color="rgba(255,255,255,0)"), name="95% CI", showlegend=True,
+))
+
+# 80% CI band
+lower_80 = [last_hist_value] + df_forecast["lower_80"].to_list()
+upper_80 = [last_hist_value] + df_forecast["upper_80"].to_list()
+
+fig.add_trace(go.Scatter(
+    x=forecast_dates + forecast_dates[::-1],
+    y=upper_80 + lower_80[::-1],
+    fill="toself", fillcolor="rgba(230,81,0,0.20)",
+    line=dict(color="rgba(255,255,255,0)"), name="80% CI", showlegend=True,
+))
+
+# NO vertical line at forecast start — creates visual gap
+# Instead, rely on dotted line style + legend to distinguish forecast from actual 95% CI band
 fig.add_trace(go.Scatter(
     x=pd.concat([df_forecast["date"], df_forecast["date"].iloc[::-1]]),
     y=pd.concat([df_forecast["upper_95"], df_forecast["lower_95"].iloc[::-1]]),
@@ -288,6 +379,22 @@ fig.add_vline(
 - Small-cell suppression: show `"*"` when n < 5
 - Accessible: never distinguish categories by colour alone — add shape, pattern, or label
 
+**MANDATORY: Comprehensive Visualization Requirements**
+If prior agents (EDA, feature engineering) created these outputs, dashboard MUST include corresponding charts:
+- **YoY growth analysis** → Time-series line chart showing year-over-year growth rates by category
+- **Sector/segment comparisons** (e.g., public vs private, urban vs rural) → Side-by-side bar chart or dual-axis combo
+- **CAGR rankings** → Horizontal bar chart sorted by growth rate
+- **Engineered features** (rolling means, trend indicators, ratios) → Overlay chart showing actual vs smoothed trend, or dedicated feature exploration tab
+- **Growth inflection points / trend changes** → Annotated markers on time-series charts or dedicated timeline visualization
+- **Correlation analysis** → Heatmap if correlation matrix file exists
+
+**Validation checkpoint before handoff:**
+1. List all CSV/Parquet files in `results/tables/` and `data/4_processed/`
+2. For each file, confirm it is either:
+   - Loaded in dashboard data loader AND visualized in a chart/table
+   - Deliberately excluded with documented reason in handoff JSON
+3. No analysis output should be "forgotten" — if it was important enough to compute, it's important enough to show
+
 ---
 
 ### Step 9 — Narrative Insights (3 levels required)
@@ -309,7 +416,7 @@ fig.add_vline(
 | Config | `problem-statements/ps-{num}-{name}/config/dashboard_config.yml` |
 | Exported HTML | `problem-statements/ps-{num}-{name}/reports/dashboards/{dashboard_name}.html` |
 | User guide | `problem-statements/ps-{num}-{name}/reports/dashboards/README.md` |
-| Handoff JSON | `problem-statements/ps-{num}-{name}/data/3_interim/agent_handoffs/dashboard_to_documentation_{timestamp}.json` |
+| Handoff JSON | `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_documentation_{timestamp}.json` |
 
 **Handoff JSON must include**: `objective_coverage_gaps` (must be `[]`) · `data_quality_checks` · `notebook_output_audit` · `shared_code_decisions` · `dashboard_summary` (kpis_count, charts_count, tabs_count) · `about_tab_validation` (plain_language: bool, no_ps_numbers: bool) · `storytelling_elements` (level_1, level_2, level_3).
 
@@ -340,6 +447,10 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 - [ ] W/M granularity toggle implemented on all time-series charts
 - [ ] Sidebar active nav button uses accent color fill; inactive buttons use outline style
 - [ ] Header row includes title, brand/logo, `Last Updated` timestamp, and Reset button
+- [ ] **Main execution block uses `app.run(debug=True, host="0.0.0.0", port=8050)` — NOT `app.run_server()`**
+- [ ] **Every filter UI element (dropdown, checklist, slider, button) has a corresponding callback**
+- [ ] **All data files in `results/tables/` and `data/4_processed/` are either loaded or explicitly excluded in handoff JSON**
+- [ ] **Chart options filter (if present) correctly passes boolean flags to chart functions**
 
 **Storytelling**
 - [ ] Every tab: 1 narrative header + ≥2 charts + ≥1 insight card section
@@ -348,6 +459,15 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 - [ ] Semantic color logic applied correctly (outcome-based, not direction-based)
 - [ ] Three-level narrative present (entity + cross-entity + portfolio)
 
+**Forecast charts**: seamless transition from historical to forecast (no vertical gap lines)**
+- [ ] **Forecast data prepends last historical point for continuous visual flow**
+- [ ] Forecast charts include 80% + 95% CI shaded bands and scenario selector (Best/Base/Worst)
+- [ ] Actual vs Predicted toggle present when model back-testing data is available
+- [ ] **Forecast chart titles show selected model + validation metric when multiple models were compared**
+- [ ] **Category filter = "all" displays all entities OR clear aggregation — never silently defaults to single entity**
+- [ ] **YoY growth, sector comparisons, and engineered features visualized if corresponding data files exist**
+- [ ] **Entity/category name normalization functions created if naming inconsistencies exist between datasets
+
 **Charts**
 - [ ] Titles state insights, not data labels
 - [ ] All charts have data provenance footer
@@ -355,6 +475,9 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 - [ ] Cut-off vertical line annotated with `"Forecast start"`
 - [ ] Forecast charts include 80% + 95% CI shaded bands and scenario selector (Best/Base/Worst)
 - [ ] Actual vs Predicted toggle present when model back-testing data is available
+- [ ] **Forecast chart titles show selected model + validation metric when multiple models were compared**
+- [ ] **Category filter = "all" displays all entities OR clear aggregation — never silently defaults to single entity**
+- [ ] **YoY growth, sector comparisons, and engineered features visualized if corresponding data files exist**
 - [ ] Outliers >2 SD annotated on trend charts
 - [ ] Donut (`hole=0.55`) used instead of pie for all composition charts
 - [ ] Side-by-side composition breakdowns use `make_subplots(1, 2)` donut pair — not two separate `dcc.Graph` blocks
