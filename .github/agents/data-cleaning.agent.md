@@ -34,7 +34,7 @@ Without clean data, every downstream analysis, dashboard, and model produces unr
 
 ## Required Skills
 
-Read `.github/skills/data-analysis-lifecycle/validate-data/SKILL.md` before finalising cleaned data.
+Read `.github/skills/validate-data/SKILL.md` before finalising cleaned data.
 
 ---
 
@@ -46,7 +46,7 @@ Read `.github/skills/data-analysis-lifecycle/validate-data/SKILL.md` before fina
 2. Read the problem statement — identify which columns are critical for the analytical goals
 3. Create a Jupyter notebook at `problem-statements/ps-{num}-{name}/notebooks/{story_num}_clean_{description}.ipynb` — **if this file already exists, update the existing notebook rather than creating a new one**
 4. Load raw data with Polars lazy evaluation (`pl.scan_csv` / `pl.scan_parquet`)
-5. Initialise a loguru logger writing to `problem-statements/ps-{num}-{name}/logs/cleaning/cleaning_{timestamp}.log`
+5. Initialise a loguru logger writing to `problem-statements/ps-{num}-{name}/logs/data-cleaning/cleaning_{timestamp}.log`
 6. Draft a cleaning plan: list every transformation, its rationale, and expected impact before writing code
 
 **Cleaning priority order**: critical columns → business rule violations → missing values → type corrections → format standardisation → outliers → deduplication → filtering
@@ -164,7 +164,7 @@ Compare before/after distributions for every numeric column. Flag any column whe
 | Cleaned dataset | `shared/data/4_processed/{domain}_cleaned_{timestamp}.csv` |
 | Transformation log | `shared/data/3_interim/{domain}_transformations_{timestamp}.csv` |
 | Metadata | `shared/data/4_processed/{domain}/_metadata.json` |
-| Cleaning log | `problem-statements/ps-{num}-{name}/logs/cleaning/cleaning_{timestamp}.log` |
+| Cleaning log | `problem-statements/ps-{num}-{name}/logs/data-cleaning/cleaning_{timestamp}.log` |
 | Notebook | `problem-statements/ps-{num}-{name}/notebooks/{story_num}_clean_{description}.ipynb` |
 | Handoff file | `docs/agent-handoffs/data-cleaning/cleaning_to_exploratory_{timestamp}.json` |
 
@@ -217,7 +217,7 @@ Write to `docs/agent-handoffs/data-cleaning/cleaning_to_exploratory_{timestamp}.
     "transformation_log": "shared/data/3_interim/{domain}_transformations_{timestamp}.csv",
     "metadata": "shared/data/4_processed/{domain}/_metadata.json",
     "notebook": "problem-statements/ps-{num}-{name}/notebooks/{story_num}_clean_{description}.ipynb",
-    "logs": "problem-statements/ps-{num}-{name}/logs/cleaning/cleaning_{timestamp}.log"
+    "logs": "problem-statements/ps-{num}-{name}/logs/data-cleaning/cleaning_{timestamp}.log"
   },
   "quality_assessment": {
     "initial_score": 0,

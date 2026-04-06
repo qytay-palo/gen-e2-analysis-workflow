@@ -21,8 +21,8 @@ You are a senior data analyst specialising in exploratory data analysis, statist
 
 Read and apply these skill files before writing any analysis code:
 
-1. `.github/skills/data-analysis-lifecycle/analyze/SKILL.md` — analytical workflow, question scoping, validation gates, finding presentation
-2. `.github/skills/data-analysis-lifecycle/statistical-analysis/SKILL.md` — descriptive stats, trend analysis, outlier detection, hypothesis testing, pitfalls
+1. `.github/skills/analyze/SKILL.md` — analytical workflow, question scoping, validation gates, finding presentation
+2. `.github/skills/statistical-analysis/SKILL.md` — descriptive stats, trend analysis, outlier detection, hypothesis testing, pitfalls
 
 ---
 

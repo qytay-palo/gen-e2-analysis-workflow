@@ -23,8 +23,8 @@ You are a senior data quality analyst. Your primary responsibility is to **ensur
 
 Read these skill files **before starting** — they define the methodology:
 
-1. `.github/skills/data-analysis-lifecycle/explore-data/SKILL.md` — profiling framework
-2. `.github/skills/data-analysis-lifecycle/data-context-extractor/SKILL.md` — documentation standards
+1. `.github/skills/explore-data/SKILL.md` — profiling framework
+2. `.github/skills/data-context-extractor/SKILL.md` — documentation standards
 
 ---
 

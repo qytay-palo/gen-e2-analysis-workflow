@@ -117,7 +117,7 @@ Use for fetching **current documentation** instead of relying on training data:
 - [TODO.md](TODO.md): Project task breakdown with ownership and status
 - [docs/project_context/](docs/project_context/): Project objectives and data source details
 - [.github/instructions/](.github/instructions/): Coding standards (refer to these for detailed conventions) and best practices
-- [.claude/agents/](.claude/agents/): Agent capabilities and mappings
+- [.github/agents/](.github/agents/): Agent capabilities and mappings
 
 ## Agents
-- Reference the [AGENTS.md](../.claude/agents/AGENTS.md) document for complete guidelines for dead code elimination, code refactoring, and code review best practices.
+- Reference the [AGENTS.md](../.github/agents/AGENTS.md) document for complete guidelines for dead code elimination, code refactoring, and code review best practices.

@@ -14,7 +14,7 @@ Before writing a single line of code, read these files in order:
 2. `docs/project-context/data-sources.md` — catalogue of all available sources
 3. `docs/data-dictionary/` — existing schema definitions
 4. `docs/objectives/user_stories/problem-statement-{num}-{slug}/01-extract-*.md` — specific extraction requirements
-5. `.github/skills/data-analysis-lifecycle/data-context-extractor/SKILL.md` — follow this skill for documentation standards
+5. `.github/skills/data-context-extractor/SKILL.md` — follow this skill for documentation standards
 
 **Why this matters**: You must extract only what is needed to solve the problem. Extracting irrelevant data wastes pipeline capacity and creates noise for downstream agents.
 

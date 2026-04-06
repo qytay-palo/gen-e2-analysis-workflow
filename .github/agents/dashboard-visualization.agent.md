@@ -28,8 +28,8 @@ A dashboard is not a collection of charts. It is a **narrative interface** that 
 ## Required Skills
 
 Read these before proceeding:
-1. `.github/skills/data-analysis-lifecycle/build-dashboard/SKILL.md`
-2. `.github/skills/data-analysis-lifecycle/create-viz/SKILL.md`
+1. `.github/skills/build-dashboard/SKILL.md`
+2. `.github/skills/create-viz/SKILL.md`
 
 ---
 
