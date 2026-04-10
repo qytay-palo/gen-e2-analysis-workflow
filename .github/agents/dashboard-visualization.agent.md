@@ -57,6 +57,13 @@ Read these before proceeding:
 - **MANDATORY: Load ALL analysis outputs** — scan `results/` and `data/processed/` directories; load every relevant CSV/Parquet file (YoY growth, sector comparisons, engineered features, model selection summaries, etc.)
 - **MANDATORY: Connect all filter UI elements to callbacks** — dropdown, checklist, slider, or button that does not trigger a callback is a bug
 - **MANDATORY: Handle "all" filter values properly** — when profession/category filter = "all", display all entities OR show meaningful aggregation (never default silently to one entity)
+- **MANDATORY: "All" filter on single-entity charts → bottom-up roll-up** — charts that normally show one entity (e.g., rolling mean, trend overlay) must aggregate ALL entities by the time dimension (sum counts, then recompute derived metrics such as rolling mean on the totals); never swap in an arbitrary default entity
+- **MANDATORY: Zero empty charts, zero annotation-only charts** — there must be NO visible chart frame without at least one data trace. Two equally banned forms:
+  1. `go.Figure()` with no traces rendered inside a visible container
+  2. `go.Figure().add_annotation(text="No data...")` used as a fallback — this produces a grey empty frame with placeholder text; it is forbidden
+  - Correct response to empty data: return `go.Figure()` **and** set the wrapping container `style={"display": "none"}` via a multi-Output callback so the frame never appears
+- **MANDATORY: Legend colors must be explicit** — every `go.Scatter` / `go.Bar` trace must set `marker.color` equal to `line.color`; rely on Plotly defaults only for single-trace charts with no legend need
+- **MANDATORY: Entity color helpers must normalize name variants** — `get_entity_color(name)` must map plural, hyphenated, or aliased names to the canonical key before palette lookup; a fallback grey `#888888` on a multi-entity chart means the normalization is broken
 - **MANDATORY: Display model provenance** — if forecasts use multiple models (ARIMA, Prophet, SARIMAX), show which model was selected for each entity/category in chart title or subtitle
 - **MANDATORY: Use `app.run()` not `app.run_server()`** — ensure main block uses correct Dash method with `debug=True` for development
 
@@ -82,7 +89,108 @@ Any output that answers a PS objective must be `IN_DASHBOARD` or `DOWNLOADABLE`.
 
 ---
 
-### Step 2 — Objective Coverage Table (Gate: no code until complete)
+### Step 1b — Results & Figures Relevance Filter (Gate: complete before Step 2)
+
+Scan every file under `problem-statement/ps-{num}-{name}/results/` and `problem-statement/ps-{num}-{name}/reports/figures/`. For each file, ask: **does this output directly answer a PS objective or stakeholder question?** If not, exclude it.
+
+Classify each file as:
+
+| Label | Criteria | Action |
+|---|---|---|
+| `SHOW` | Answers ≥1 PS objective; valid non-trivial data | Visualize as interactive chart or KPI card |
+| `SUPPORT` | Enriches a `SHOW` output but not standalone | Use in insight card text or annotation only |
+| `EXPORT_ONLY` | Answers a PS objective but too granular to chart | CSV download in Detail tab |
+| `EXCLUDE` | No PS objective linkage, superseded, or invalid data | Omit; document reason |
+
+Additional rules:
+- Static figures (`.png`, `.pdf`) classified `SHOW` must be **re-implemented as interactive Plotly charts** — never embed images in the layout; confirm the source data file exists before classifying `SHOW`
+- Two files covering the same insight at different granularities: aggregated → `SHOW`; row-level → `EXPORT_ONLY`
+
+**Gate**: produce a brief register (file · classification · PS objective · dashboard placement) before proceeding. Zero unplaced `SHOW` files allowed. Record `excluded_files` with reasons in the handoff JSON under `results_figures_relevance_filter`.
+
+---
+
+### Step 2 — EDA Relevance Evaluation (Gate: complete before building coverage table)
+
+Before mapping outputs to dashboard components, evaluate every EDA result against the problem statement to separate signal from noise. A chart or table produced during EDA may be technically correct but irrelevant to the PS's questions — including it wastes dashboard real-estate and dilutes the narrative.
+
+#### 2a — Extract PS Objectives and Decision Questions
+
+Parse the problem statement markdown and list:
+1. Every **explicit objective** (e.g., "forecast workforce to 2030", "identify high-burden diseases")
+2. Every **stakeholder question** extracted from user stories
+3. Every **success criterion** (measurable outcome the PS defines as "done")
+
+Store as a reference list; every EDA output will be scored against it.
+
+#### 2b — Inventory EDA Outputs
+
+Scan the following locations and list every file produced by prior agents:
+
+| Location | What to expect |
+|---|---|
+| `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/` | EDA handoff JSON(s); contains `key_findings`, `charts_produced`, `statistical_tests` |
+| `problem-statement/ps-{num}-{name}/results/tables/` | Summary tables, aggregations, frequency counts |
+| `problem-statement/ps-{num}-{name}/reports/figures/` | Static charts and plots saved as PNG/PDF |
+| `problem-statement/ps-{num}-{name}/data/4_processed/` | Cleaned and engineered feature files |
+| `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/` | Feature engineering handoff JSON(s) |
+
+For each file record: `filename`, `description` (inferred from filename or handoff JSON), `producing_agent` (EDA / feature-engineering / model-forecasting).
+
+#### 2c — Relevance Scoring
+
+For each inventoried output, apply the following decision criteria:
+
+| Criterion | Question to ask | Pass = Relevant |
+|---|---|---|
+| **Objective alignment** | Does this output directly answer one or more PS objectives or sub-requirements? | Yes → Relevant |
+| **Decision value** | Would a stakeholder change a decision or priority based on this finding? | Yes → Relevant |
+| **Narrative contribution** | Does this output explain *why* a trend exists, or provide context for a KPI? | Yes → Relevant |
+| **Uniqueness** | Does this output add information not already covered by another higher-signal output? | Yes → Relevant |
+| **Data validity** | Is this output free of all-zero, all-null, single-value, or known-artefact columns? | Yes → Relevant |
+
+Score each output as one of:
+
+- **`RELEVANT_PRIMARY`** — directly answers a PS objective; must appear `IN_DASHBOARD`
+- **`RELEVANT_SUPPORTING`** — enriches context or explains drivers; include as supporting chart or insight card
+- **`RELEVANT_DOWNLOADABLE`** — contains useful detail but too granular for visual display; expose via CSV export button
+- **`NOT_RELEVANT`** — does not connect to any PS objective (document the reason); excluded from dashboard
+
+**Minimum bar**: an output is `NOT_RELEVANT` if it satisfies none of the five criteria above. It must still be documented — never silently dropped.
+
+#### 2d — Produce EDA Relevance Register
+
+Build a table before proceeding:
+
+| Output File / Finding | Producing Agent | Criterion Met | Classification | PS Objective Addressed | Dashboard Placement |
+|---|---|---|---|---|---|
+| `workforce_yoy_growth.csv` | EDA | Objective alignment, Decision value | `RELEVANT_PRIMARY` | "Quantify workforce growth trend" | Deep Dive tab → YoY growth chart |
+| `age_distribution_summary.csv` | EDA | Narrative contribution | `RELEVANT_SUPPORTING` | "Identify workforce sustainability risks" | Context tab → insight card |
+| `raw_data_profile.html` | EDA | None | `NOT_RELEVANT` | — | Excluded: duplicate of cleaned data profile |
+
+**Gate**: zero `RELEVANT_PRIMARY` outputs may be left unplaced before proceeding to Step 3.
+
+#### 2e — Update Handoff JSON
+
+Add the following block to the handoff JSON under `eda_relevance_evaluation`:
+
+```json
+"eda_relevance_evaluation": {
+  "total_outputs_inventoried": 12,
+  "relevant_primary": 5,
+  "relevant_supporting": 3,
+  "relevant_downloadable": 1,
+  "not_relevant": 3,
+  "not_relevant_reasons": [
+    {"file": "raw_data_profile.html", "reason": "Duplicate of cleaned data profile; no PS objective addressed"},
+    {"file": "correlation_all_vars.png", "reason": "All-variable correlation matrix; too broad — replaced by targeted heatmap in Deep Dive"}
+  ]
+}
+```
+
+---
+
+### Step 3 — Objective Coverage Table (Gate: no code until complete)
 
 | PS Objective | Sub-requirement | Dashboard Component | Type | Status |
 |---|---|---|---|---|
@@ -96,7 +204,7 @@ Rules:
 
 ---
 
-### Step 3 — Dashboard Storytelling Structure
+### Step 4 — Dashboard Storytelling Structure
 
 Design tabs around these questions — not around data tables.
 Always refer to existing `problem-statements/ps-{num}-{name}/results/*` and `problem-statements/ps-{num}-{name}/reports/*` for charts that can be adapted 
@@ -137,13 +245,13 @@ A tab renderer that doesn't satisfy its component contract must not be committed
 
 ---
 
-### Step 4 — Shared Code Check
+### Step 5 — Shared Code Check
 
 Before writing code, check `shared/src/visualization/`. Any utility usable by 2+ problem statements unchanged belongs there, not in PS-specific code. Document decisions in the handoff JSON under `shared_code_decisions`.
 
 ---
 
-### Step 5 — Implement Dashboard
+### Step 6 — Implement Dashboard
 
 **Stack**: Plotly Dash (`dash>=2.14.0`, `dash-bootstrap-components>=1.5.0`, `plotly>=5.18.0`) · Polars for data · `flask_caching>=2.1.0` for memoisation
 
@@ -208,7 +316,7 @@ Before implementing charts, verify data loader includes:
 
 ---
 
-### Step 6 — KPI Cards
+### Step 7 — KPI Cards
 
 Each card requires: **primary value** (with units) + **directional arrow** (▲/▼) + **MoM % delta** + **comparison caption** + **semantic color on delta**. Sparklines are additive — include when trend shape matters beyond the MoM percentage.
 
@@ -229,7 +337,7 @@ Show 5–7 KPI cards per strip. The **first card** (primary KPI) may use a borde
 
 ---
 
-### Step 7 — Insight Cards
+### Step 8 — Insight Cards
 
 Every insight card must answer three questions: **What did we find?** (quantified finding) → **What proves it?** (metric/evidence) → **What should we do?** (actionable recommendation).
 
@@ -246,7 +354,7 @@ Minimum insight count: `(N_entities × 1) + 2 cross-entity comparisons + 1 portf
 
 ---
 
-### Step 8 — Chart Selection
+### Step 9 — Chart Selection
 
 Match chart type to the question being asked — never choose a chart type for aesthetic reasons:
 
@@ -366,7 +474,6 @@ fig.add_vline(
     x=cutoff_date, line_dash="dash", line_color="#9E9E9E",
     annotation_text="Forecast start", annotation_position="top right",
 )
-```
 
 **Chart standards** (apply to every chart, no exceptions):
 - **Title states the insight**, not the data: `"Nursing workforce grew 23% (2010–2019)"` not `"Nurses by Year"`
@@ -375,7 +482,7 @@ fig.add_vline(
 - Data provenance footer: `"Source: {source}, {year_range} | Updated: {date}"`
 - Policy/event annotations: max 5 vertical lines per chart — more than 5 defeats legibility
 - Outliers >2 SD must be annotated with value and year
-- Legends outside the plot area (right or bottom)
+- Legends outside the plot area (right or bottom) with white background and border
 - Small-cell suppression: show `"*"` when n < 5
 - Accessible: never distinguish categories by colour alone — add shape, pattern, or label
 
@@ -397,7 +504,7 @@ If prior agents (EDA, feature engineering) created these outputs, dashboard MUST
 
 ---
 
-### Step 9 — Narrative Insights (3 levels required)
+### Step 10 — Narrative Insights (3 levels required)
 
 | Level | Scope | Minimum count |
 |---|---|---|
@@ -407,7 +514,7 @@ If prior agents (EDA, feature engineering) created these outputs, dashboard MUST
 
 ---
 
-### Step 10 — Outputs
+### Step 11 — Outputs
 
 | Artifact | Path |
 |---|---|
@@ -435,6 +542,8 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 
 **Data & objectives**
 - [ ] Data quality check run — no all-zero/all-null columns plotted without acknowledgement
+- [ ] **Results & Figures Relevance Filter (Step 1b) complete** — every file in `results/` and `reports/figures/` classified (`SHOW` / `SUPPORT` / `EXPORT_ONLY` / `EXCLUDE`); zero unplaced `SHOW` files; exclusions documented in handoff JSON
+- [ ] Static figures re-implemented as interactive Plotly charts — no image embeds in layout
 - [ ] Notebook Output Audit complete — every prior output classified
 - [ ] Objective Coverage Table complete — zero Gap rows
 
@@ -451,6 +560,9 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 - [ ] **Every filter UI element (dropdown, checklist, slider, button) has a corresponding callback**
 - [ ] **All data files in `results/tables/` and `data/4_processed/` are either loaded or explicitly excluded in handoff JSON**
 - [ ] **Chart options filter (if present) correctly passes boolean flags to chart functions**
+- [ ] **`get_entity_color()` normalizes plural/alias variants before palette lookup — no entity returns `#888888` in a multi-entity chart**
+- [ ] **"All" filter on single-entity charts triggers bottom-up aggregation, not a silent entity default; chart title reflects aggregated scope**
+- [ ] **ZERO empty chart frames** — no `dcc.Graph` is visible with zero traces; every chart that can be empty has a container `html.Div` with a stable `id`, and its callback outputs both `figure` AND `style` (`{"display": "none"}` when `len(fig.data) == 0`)
 
 **Storytelling**
 - [ ] Every tab: 1 narrative header + ≥2 charts + ≥1 insight card section
@@ -479,6 +591,10 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
 - [ ] **Category filter = "all" displays all entities OR clear aggregation — never silently defaults to single entity**
 - [ ] **YoY growth, sector comparisons, and engineered features visualized if corresponding data files exist**
 - [ ] Outliers >2 SD annotated on trend charts
+- [ ] Every `go.Scatter` / `go.Bar` trace sets `marker.color` equal to `line.color`
+- [ ] Multi-entity legends use `mode="lines+markers"` with distinct `marker.symbol` per series type (actuals vs smoothed vs forecast)
+- [ ] Legend box has `bgcolor`, `bordercolor`, `borderwidth`, and `itemsizing="constant"` on all multi-entity charts
+- [ ] No empty chart frames visible — containers hidden via `style={"display": "none"}` when data is absent
 - [ ] Donut (`hole=0.55`) used instead of pie for all composition charts
 - [ ] Side-by-side composition breakdowns use `make_subplots(1, 2)` donut pair — not two separate `dcc.Graph` blocks
 - [ ] Dual-axis combo charts: bars near-black `#212121`, overlay line dotted in accent color, `yaxis2` labelled with units

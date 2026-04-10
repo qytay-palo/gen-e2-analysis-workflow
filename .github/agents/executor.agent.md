@@ -2,7 +2,7 @@
 name: Implementation Executor Agent
 description: Executor agent that orchestrates the execution of the implementation plan by coordinating various agents
 tools: ['agent']
-agents: ['data-extractor', 'data-validation', 'data-cleaning', 'exploratory-analysis', 'feature-engineer', 'model-forecasting', 'dashboard-visualization', 'code-quality', 'code-reviewer']
+agents: ['data-extractor', 'data-validation', 'data-cleaning', 'exploratory-analysis', 'feature-engineer', 'model-forecasting', 'dashboard-visualization', 'code-quality', 'code-simplifier', 'code-reviewer']
 ---
 You are a executor for the implementation plan. For each task:
 
@@ -45,6 +45,22 @@ ALWAYS pass the problem statement path to all `runSubagent` calls as context, an
 
 ---
 
+## Master Trigger Checklist
+
+Before declaring delivery complete, confirm that `runSubagent` was called for **every** agent below. Check off each one as it completes:
+
+| # | Agent | Phase | Triggered | Verified by code-quality |
+|---|---|---|---|---|
+| 1 | `data-extractor` | 1 | ☐ | ☐ |
+| 2 | `data-validation` and `data-cleaning` | 2 | ☐ | ☐ |
+| 3 | `exploratory-analysis` and `feature-engineer` | 3 | ☐ | ☐ |
+| 4 | `model-forecasting` | 4 (if applicable) | ☐ / N/A | ☐ / N/A |
+| 5 | `dashboard-visualization` | 5 | ☐ | ☐ |
+
+> every non-N/A row must be checked. If any row is unchecked, trigger the missing agent now.
+
+---
+
 ## Agent Completion Monitor
 
 Before advancing to the next phase or agent, you MUST verify that the current agent has fully completed its task. Use the following protocol after **every** `runSubagent` call:
@@ -60,37 +76,6 @@ For each agent, confirm ALL of the following before proceeding:
 | **Notebooks are non-empty** | Any `.ipynb` listed must be > 1 KB and contain at least one executed cell with output |
 | **No unhandled errors** | Handoff JSON `status` field must be `"success"` — any other value is a failure |
 | **Data files are non-empty** | Any CSV/Parquet written must have at least 1 data row (not header-only) |
-
-### Phase Status Log (maintain throughout execution)
-
-Keep a running status block updated after each completion gate:
-
-```
-| Phase | Agent               | Status        | Handoff Path |
-|-------|---------------------|---------------|--------------|
-| 1     | data-extractor      | ⏳ pending    |              |
-| 1     | code-quality        | ⏳ pending    |              |
-| 2     | data-cleaning       | ⏳ pending    |              |
-| 2     | data-validation     | ⏳ pending    |              |
-| 2     | code-quality (x2)   | ⏳ pending    |              |
-| 3     | exploratory-analysis| ⏳ pending    |              |
-| 3     | feature-engineer    | ⏳ pending    |              |
-| 3     | code-quality (x2)   | ⏳ pending    |              |
-| 4     | model-forecasting   | ⏳ pending    |              |
-| 4     | code-quality        | ⏳ pending    |              |
-| 5     | dashboard-viz       | ⏳ pending    |              |
-| 5     | code-quality        | ⏳ pending    |              |
-| 6     | code-simplifier     | ⏳ pending    |              |
-| 6     | code-reviewer       | ⏳ pending    |              |
-```
-
-Update each row to `✅ done`, `🔁 retrying`, or `❌ blocked` as agents complete.
-
----
-## Rules
-1. Update requirements.txt file with any new dependencies required for the implementation.
-2. `runSubagent` is mandatory for every agent — never inline agent work in the main conversation.
-3. Parallel phases must use simultaneous `runSubagent` calls — call both agents in the same invocation batch; do not call them sequentially.
 ---
 
 ## Phase 1: Extraction
@@ -108,106 +93,139 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Expected outputs: `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
 **code-quality** (verify extraction):
-- Run immediately after data-extractor completes
-- Input: handoff JSON path from data-extractor, verify all claimed files exist and are non-empty
-- If FAIL: re-run data-extractor with explicit fix instructions
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
+- Input: handoff JSON path from data-extractor; verify all claimed files exist and are non-empty
+- If FAIL: re-run `data-extractor` with explicit fix instructions before advancing
 
-## Phase 2: Data Cleaning and Validation (parallel)
+**code-reviewer** (verify code):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
+- Input: handoff JSON path from data-extractor; verify all claimed files exist and are non-empty
+- If FAIL: re-run `data-extractor` with explicit fix instructions before advancing
 
-Call `runSubagent` for these agents in parallel. After each completes, run code-quality verification.
+## Phase 2: Data Validation and Data Cleaning (parallel)
 
-**data-cleaning**:
-- Subagent type: `data-cleaning`
-- Input: 
-    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{name}/` (relevant story)
-    3. **Validation Handoff**: `docs/agent-handoffs/validation/ps-{num}-{name}/*`
-    4. **Extractor Handoff**: `docs/agent-handoffs/extraction/ps-{num}-{name}/*`
-- Expected outputs: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/cleaning_to_{next_agent}_{timestamp}.json` + jupyter notebooks and cleaned datasets
-- **Verification**: Run code-quality agent after completion
+**TRIGGER NOW**: Call `runSubagent` in parallel for `data-validation` and `data-cleaning`. Wait for it to complete and pass code-quality before advancing to Phase 2b.
 
 **data-validation**:
 - Subagent type: `data-validation`
-- Input: 
+- Input:
   1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
   2. **Extractor Handoff**: `docs/agent-handoffs/extraction/ps-{num}-{name}/*`
   3. **Raw Data Files**: `shared/data/1_raw/{domain}/`
 - Expected outputs: `docs/agent-handoffs/validation/ps-{num}-{name}/validation_to_{next_agent}_{timestamp}.json` + jupyter notebooks
-- **Verification**: Run code-quality agent after completion
 
-## Phase 3: Analysis and Visualization (parallel)
+**data-cleaning**
 
-Call `runSubagent` these agents in parallel. After each completes, run code-quality verification.
+**TRIGGER NOW**: Call `runSubagent` for `data-cleaning`. Must run after Phase 2a completes (requires validation handoff).
+
+**data-cleaning**:
+- Subagent type: `data-cleaning`
+- Input:
+    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{name}/` (relevant story)
+    3. **Validation Handoff**: `docs/agent-handoffs/validation/ps-{num}-{name}/*` ← requires Phase 2a output
+    4. **Extractor Handoff**: `docs/agent-handoffs/extraction/ps-{num}-{name}/*`
+- Expected outputs: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/cleaning_to_{next_agent}_{timestamp}.json` + jupyter notebooks and cleaned datasets
+
+**code-quality** (verify cleaning):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
+- Input: handoff JSON path from data-cleaning and data-validation
+- If FAIL: re-run `data-cleaning` and `data-validation` with explicit fix instructions before advancing
+
+**code-reviewer** (verify code):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
+- Input: handoff JSON path from data-cleaning and data-validation; verify all claimed files exist and are non-empty
+- If FAIL: re-run `data-cleaning` and `data-validation` with explicit fix instructions before advancing
+
+## Phase 3: Exploratory Analysis and Feature Engineering (Parallel)
 
 **exploratory-analysis**
+
+**TRIGGER NOW**: Call `runSubagent` in parallel for `exploratory-analysis` and `feature-engineer`. Wait for it to complete and pass code-quality before advancing to Phase 3b.
+
+**exploratory-analysis**:
 - Subagent type: `exploratory-analysis`
-- Input : 
+- Input:
   1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-  2. **Handoff File**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*` & `docs/agent-handoffs/validation/ps-{num}-{name}/*`
-  3. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/` (relevant story)
+  2. **Cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
+  3. **Validation Handoff**: `docs/agent-handoffs/validation/ps-{num}-{name}/*`
+  4. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/` (relevant story)
 - Expected outputs: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/exploratory_to_{next_agent}_{timestamp}.json` + jupyter notebooks
-- **Verification**: Run code-quality agent after completion
 
-**feature-engineer**
+**feature-engineer**:
 - Subagent type: `feature-engineer`
-- Input : 
-  1. **Handoff File**: `docs/agent-handoffs/exploratory-analysis/*` or `docs/agent-handoffs/data-cleaning/*`
-  2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-engineer-**.md` (relevant story)
-  3. **Domain Knowledge**: `docs/domain-knowledge/` — **read all relevant guides before engineering any features**
+- Input:
+  1. **EDA Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` ← requires Phase 3a output
+  2. **Cleaning Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
+  3. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-engineer-**.md` (relevant story)
+  4. **Domain Knowledge**: `docs/domain-knowledge/` — **read all relevant guides before engineering any features**
 - Expected outputs: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/features_to_{next_agent}_{timestamp}.json` + jupyter notebooks and interim datasets with new features
-- **Verification**: Run code-quality agent after completion — **CRITICAL: verify notebook is not empty (common failure)**
 
-# Phase 4: model-forecasting
-Call `runSubagent` model-forecasting agent. After completion, run code-quality verification.
+**code-quality** (verify feature engineering and exploratory analysis):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
+- Input: handoff JSON path from feature-engineer and exploratory-analysis
+- If FAIL: re-run `feature-engineer` and `exploratory-analysis` with explicit fix instructions before advancing
+- **CRITICAL**: verify notebook is not empty (common failure) — notebook must be > 1 KB with executed cells
+
+**code-reviewer** (verify code):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
+- Input: handoff JSON path from feature-engineer and exploratory-analysis; verify all claimed files exist and are non-empty
+- If FAIL: re-run `feature-engineer` and `exploratory-analysis` with explicit fix instructions before advancing
+
+# Phase 4: model-forecasting (OPTIONAL — only if user story requires forecasting)
+
+> **Decision gate**: Check whether the user story contains a forecasting task (`{num}-**-forecast-**.md`). If YES → trigger Phase 4. If NO → skip to Phase 5 and mark Phase 4 as N/A in the Master Trigger Checklist.
+
+**TRIGGER NOW** (if applicable): Call `runSubagent` for `model-forecasting`.
 
 **model-forecasting**:
 - Subagent type: `model-forecasting`
-- Input: 
+- Input:
     1. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-forecast-**.md`
-    2. **Handoff File**: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/*` or `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
-    3. **Feature dataset**: Check handoff JSON for actual path
-    4. **Feature dictionary**: Check handoff JSON for actual path
-    5. **Domain knowledge**: `docs/domain-knowledge/`
+    2. **Feature Engineering Handoff**: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/*`
+    3. **Exploratory Analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
+    4. **Feature dataset**: Check handoff JSON `outputs` array for actual path
+    5. **Feature dictionary**: Check handoff JSON for actual path
+    6. **Domain knowledge**: `docs/domain-knowledge/`
 - Expected outputs: `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/forecasting_to_{next_agent}_{timestamp}.json` + jupyter notebooks/scripts and forecast results
-- **Verification**: Run code-quality agent after completion
 
-# Phase 5: dashboard-visualization
-Call `runSubagent` dashboard-visualization agent. After completion, run code-quality verification.
+**code-quality** (verify forecasting):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
+- Input: handoff JSON path from model-forecasting
+- If FAIL: re-run `model-forecasting` with explicit fix instructions before advancing
+
+**code-reviewer** (verify code):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
+- Input: handoff JSON path from feature-engineer; verify all claimed files exist and are non-empty
+- If FAIL: re-run `feature-engineer` with explicit fix instructions before advancing
+
+# Phase 5: Dashboard Visualization
+
+**TRIGGER NOW**: Call `runSubagent` for `dashboard-visualization`.
 
 **dashboard-visualization**:
 - Subagent type: `dashboard-visualization`
-- Input: 
+- Input:
     1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-**-dashboard.md` 
-    3. **Handoff File**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`, `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*`
-    4. **Existing analysis** `problem-statement/ps-{num}-{name}/results/` and `reports/figures/`
+    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-**-dashboard.md`
+    3. **EDA Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
+    4. **Forecasting Handoff** (if Phase 4 ran): `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*`
+    5. **Existing analysis**: `problem-statement/ps-{num}-{name}/results/` and `reports/figures/`
 - Expected outputs: `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_{next_agent}_{timestamp}.json` + dashboard scripts
-- **Verification**: Run code-quality agent after completion
 
-# Phase 6: Quality Gate (sequential, mandatory)
+**code-quality** (verify dashboard):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
+- Input: handoff JSON path from dashboard-visualization
+- If FAIL: re-run `dashboard-visualization` with explicit fix instructions before advancing
 
-Run these steps in order. Each depends on the previous.
-
-### Step 1 — code-simplifier
-
-- Subagent type: `code-simplifier`
-- Input: review all code changes from Phase 1-5
-- Purpose: clean up generated code, reduce complexity, preserve functionality
-
-### Step 2 — code-reviewer (MANDATORY)
-
-**This step cannot be skipped. It is essential for ensuring all code works.**
-
-- Subagent type: `code-reviewer`
-- Input: Review all code changes from Phase 1-5
-- **CRITICAL REQUIREMENTS**:
-  1. **Execute ALL notebooks from top to bottom** — verify every cell runs without NameError, ImportError, or other exceptions
-  2. **Verify cell execution order** — ensure variables are defined before use (no forward references)
-  3. **Check notebook structure** — Constants/Paths → Imports/Data Loading → Functions → Main Logic
-  4. **Fix ALL errors immediately** — do not just report, fix and re-execute until clean
-  5. **Validate outputs exist** — all claimed CSV/Parquet files must exist and be non-empty
+**code-reviewer** (verify code):
+- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
+- Input: handoff JSON path from dashboard-visualization; verify all claimed files exist and are non-empty
+- If FAIL: re-run `dashboard-visualization` with explicit fix instructions before advancing
 
 ## Phase 7: Summary
+
+**STOP**: Before writing the summary, verify the Master Trigger Checklist — every non-N/A row must show ☐ checked. If any subagent was skipped, trigger it now.
 
 After all phases complete, present a delivery report:
 
@@ -232,8 +250,10 @@ After all phases complete, present a delivery report:
 2. **Parallel phases must use simultaneous `runSubagent` calls** — call both agents in the same invocation batch; do not call them sequentially.
 3. **Sequential phases must wait** — always wait for `runSubagent` to return before starting the next phase.
 4. **Agents communicate through files** — pass file paths in the `prompt` parameter, never paste code blocks.
-5. **MANDATORY: Run code-quality agent after EACH agent** — verify all claimed outputs exist and are non-empty. If verification fails, re-run the agent immediately with fix instructions.
+5. **Run code-quality after EACH agent** — verify all claimed outputs exist and are non-empty. If verification fails, re-run the agent immediately with explicit fix instructions.
 6. **code-reviewer MUST execute all notebooks** — every notebook must run top-to-bottom without errors. Cell ordering bugs (using undefined variables) = immediate failure and must be fixed.
-7. **Respect the dependency chain** — never start a phase before its upstream `runSubagent` calls have returned.
-8. **Empty notebooks = failed delivery** — notebooks < 1KB or 0 cells must be recreated.
+7. **Respect the dependency chain** — phases 2b, 3b depend on upstream outputs; never start them before upstream `runSubagent` calls have returned.
+8. **Empty notebooks = failed delivery** — notebooks < 1 KB or 0 cells must be recreated.
 9. **Notebook cell order MUST be correct** — Constants/Paths → Data Loading → Functions → Main Logic. Variables must be defined before use.
+10. **Update requirements.txt** with any new dependencies introduced during implementation.
+11. **Master Trigger Checklist is mandatory** — confirm every applicable agent was triggered before writing the Phase 7 summary.

@@ -31,6 +31,7 @@ model: Claude Sonnet
 - ✅ Import cells positioned correctly (first executable cell)
 - ✅ Prerequisites documented in markdown cells
 - ✅ Error prevention checks added to notebooks
+- ✅ Ensure flow with distinct cells
 
 **FAILURE CONDITION:**
 If ANY notebook cannot be fixed to execute successfully:
