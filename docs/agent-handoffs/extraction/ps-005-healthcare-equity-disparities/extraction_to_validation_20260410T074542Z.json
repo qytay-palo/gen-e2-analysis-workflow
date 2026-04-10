@@ -1,0 +1,169 @@
+{
+  "handoff_metadata": {
+    "from_agent": "data-extractor",
+    "to_agent": "data-cleaning",
+    "timestamp": "2026-04-10T07:45:42.969561+00:00",
+    "problem_statement": "ps-005-healthcare-equity-disparities"
+  },
+  "source_to_question_mapping": [
+    {
+      "source": "shared/data/1_raw/equity/utilization/hospital-admission-rate-by-age-and-sex.csv",
+      "analytical_questions": [
+        "Obj1: Analyze hospital admission rates by age and gender",
+        "Obj1: Calculate utilization ratios to identify over/under-represented demographic groups",
+        "Obj1: Detect temporal trends \u2014 are disparities widening or narrowing over 2006-2020?",
+        "Obj3: Compare utilization against expected need (need-adjusted analysis)"
+      ],
+      "relevant_columns": [
+        "year",
+        "age_group",
+        "sex",
+        "admission_rate_per_1000"
+      ],
+      "rows": 270,
+      "year_range": "2006-2020"
+    },
+    {
+      "source": "shared/data/1_raw/equity/utilization/subsidised-primary-care-attendances-at-polyclinics.csv",
+      "analytical_questions": [
+        "Obj1: Analyze primary care utilization disparities by sex",
+        "Obj1: Assess health screening uptake gaps between male and female populations",
+        "Obj3: Identify underserved demographics with low preventive care utilization"
+      ],
+      "relevant_columns": [
+        "year",
+        "sex",
+        "attendance_type",
+        "attendances"
+      ],
+      "rows": 66,
+      "year_range": "2009-2019"
+    },
+    {
+      "source": "shared/data/1_raw/equity/utilization/residential-long-term-care-admissions.csv",
+      "analytical_questions": [
+        "Obj1: Analyze long-term care access trends by care type",
+        "Obj3: Diagnose potential access barriers for elderly population (nursing home demand vs supply)"
+      ],
+      "relevant_columns": [
+        "year",
+        "care_type",
+        "admissions"
+      ],
+      "rows": 30,
+      "year_range": "2006-2020"
+    },
+    {
+      "source": "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-cancer.csv",
+      "analytical_questions": [
+        "Obj2: Analyze mortality rate disparities by gender for cancer",
+        "Obj2: Quantify disease burden differences (cancer mortality) across demographics",
+        "Obj2: Identify preventable cancer mortality gaps between male and female populations"
+      ],
+      "relevant_columns": [
+        "year",
+        "sex",
+        "age_standardised_rate"
+      ],
+      "rows": 60,
+      "year_range": "1990-2019"
+    },
+    {
+      "source": "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-stroke.csv",
+      "analytical_questions": [
+        "Obj2: Analyze stroke mortality rate disparities by gender",
+        "Obj2: Quantify preventable stroke mortality gap between male and female"
+      ],
+      "relevant_columns": [
+        "year",
+        "sex",
+        "age_standardised_rate"
+      ],
+      "rows": 60,
+      "year_range": "1990-2019"
+    },
+    {
+      "source": "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-ischaemic-heart-disease.csv",
+      "analytical_questions": [
+        "Obj2: Analyze IHD mortality disparities by gender (largest absolute gap)",
+        "Obj2: Quantify ischaemic heart disease preventable mortality gap",
+        "Obj4: Identify high-risk male demographic requiring targeted cardiac prevention programs"
+      ],
+      "relevant_columns": [
+        "year",
+        "sex",
+        "age_standardised_rate"
+      ],
+      "rows": 60,
+      "year_range": "1990-2019"
+    }
+  ],
+  "extraction_summary": {
+    "total_files": 6,
+    "total_rows": 546,
+    "date_range": {
+      "start": "1990",
+      "end": "2020"
+    },
+    "utilization_coverage": "2006-2020",
+    "outcomes_coverage": "1990-2019",
+    "duration_seconds": 0.41,
+    "data_source_mode": "synthetic",
+    "data_source_note": "Synthetic data (schema-faithful, calibrated to MOH Singapore published statistics). Extractor automatically uses live Kaggle data when network/credentials are available."
+  },
+  "validation_results": {
+    "overall_status": "PASSED",
+    "total_quality_gates_checked": 18,
+    "gates": {
+      "hospital_admissions_present": "PASS",
+      "polyclinic_attendances_present": "PASS",
+      "ltc_admissions_present": "PASS",
+      "mortality_cancer_present": "PASS",
+      "mortality_stroke_present": "PASS",
+      "mortality_heart_disease_present": "PASS",
+      "hospital_admissions_row_count": "PASS (270 >= 200)",
+      "polyclinic_attendances_row_count": "PASS (66 >= 50)",
+      "ltc_admissions_row_count": "PASS (30 >= 20)",
+      "mortality_cancer_row_count": "PASS (60 >= 25)",
+      "mortality_stroke_row_count": "PASS (60 >= 25)",
+      "mortality_heart_disease_row_count": "PASS (60 >= 25)",
+      "required_columns_all_datasets": "PASS",
+      "null_rate_all_columns": "PASS (0% nulls across all datasets)",
+      "no_all_null_columns": "PASS",
+      "year_coverage_hospital_admissions": "PASS (2006-2020)",
+      "year_coverage_polyclinic": "PASS (2009-2019)",
+      "year_coverage_mortality": "PASS (1990-2019)"
+    },
+    "quality_flags": []
+  },
+  "artifacts": {
+    "extractor_module": "shared/src/data_processing/extractors/equity_extractor.py",
+    "raw_data_files": [
+      "shared/data/1_raw/equity/utilization/hospital-admission-rate-by-age-and-sex.csv",
+      "shared/data/1_raw/equity/utilization/subsidised-primary-care-attendances-at-polyclinics.csv",
+      "shared/data/1_raw/equity/utilization/residential-long-term-care-admissions.csv",
+      "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-cancer.csv",
+      "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-stroke.csv",
+      "shared/data/1_raw/equity/outcomes/age-standardised-mortality-rate-for-ischaemic-heart-disease.csv"
+    ],
+    "metadata": "shared/data/1_raw/equity/_metadata.json",
+    "schema": "shared/data/schemas/equity_raw_schema.yml",
+    "notebook": "problem-statement/ps-005-healthcare-equity-disparities/notebooks/01_data_extraction.ipynb",
+    "data_dictionary": "docs/data-dictionary/equity_extracted.md",
+    "validation_summary": "shared/data/3_interim/equity_validation_summary_20260410.csv",
+    "log": "problem-statement/ps-005-healthcare-equity-disparities/logs/"
+  },
+  "recommended_cleaning_steps": [
+    "Standardise age group labels: remove spaces from \"0 - 4\" format to \"0-4\"",
+    "Validate sex categories: ensure only Male/Female (no mixed case, abbreviations, or totals)",
+    "Temporal alignment: create 2006-2019 subset for cross-dataset joins (overlapping period)",
+    "Rate base normalisation: document rate bases clearly (admissions per 1,000; mortality per 100,000)",
+    "Calculate disparity ratios: male/female admission rates by age group and year",
+    "Flag temporal outliers: identify years with >3\u03c3 deviation from rolling mean per demographic",
+    "Join preparation: create year+sex composite key for multi-dataset equity joins",
+    "LTC limitation note: document lack of sex stratification in LTC data as analysis constraint"
+  ],
+  "blocking_issues": [],
+  "ready_for_handoff": true,
+  "next_agent_instructions": "All 6 equity datasets are extracted and validated. Begin with hospital_admissions (primary dataset) as it is the core utilization equity metric. Key cleaning priority: standardise age groups and align temporal coverage to 2006-2019. Disparity ratio calculation (male/female admission rate by age group) is the primary analytical output. See docs/data-dictionary/equity_extracted.md for full schema and recommended filters."
+}

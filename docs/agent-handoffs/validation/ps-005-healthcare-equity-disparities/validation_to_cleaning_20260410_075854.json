@@ -1,0 +1,255 @@
+{
+  "handoff_metadata": {
+    "from_agent": "data-validation",
+    "to_agent": "data-cleaning",
+    "timestamp": "2026-04-10T07:58:54.421309+00:00",
+    "problem_statement": "ps-005-healthcare-equity-disparities",
+    "lifecycle_stage": "Stage 3 \u2014 Data Validation"
+  },
+  "status": "success",
+  "quality_summary": {
+    "overall_score": 98.45,
+    "quality_gate_status": "PASSED",
+    "critical_issues": 0,
+    "dimension_scores": {
+      "completeness": 100.0,
+      "accuracy": 97.0,
+      "consistency": 96.0,
+      "validity": 100.0,
+      "timeliness": 100.0
+    }
+  },
+  "dataset_characteristics": {
+    "total_rows": 546,
+    "total_columns": 23,
+    "datasets": [
+      {
+        "name": "hospital_admissions",
+        "rows": 270,
+        "cols": 4,
+        "grain": "(year, age_group, sex)",
+        "primary_key": [
+          "year",
+          "age_group",
+          "sex"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 2006,
+          "end": 2020
+        }
+      },
+      {
+        "name": "polyclinic_attendances",
+        "rows": 66,
+        "cols": 4,
+        "grain": "(year, sex, attendance_type)",
+        "primary_key": [
+          "year",
+          "sex",
+          "attendance_type"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 2009,
+          "end": 2019
+        }
+      },
+      {
+        "name": "ltc_admissions",
+        "rows": 30,
+        "cols": 3,
+        "grain": "(year, care_type)",
+        "primary_key": [
+          "year",
+          "care_type"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 2006,
+          "end": 2020
+        }
+      },
+      {
+        "name": "mortality_cancer",
+        "rows": 60,
+        "cols": 4,
+        "grain": "(year, sex)",
+        "primary_key": [
+          "year",
+          "sex"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 1990,
+          "end": 2019
+        }
+      },
+      {
+        "name": "mortality_stroke",
+        "rows": 60,
+        "cols": 4,
+        "grain": "(year, sex)",
+        "primary_key": [
+          "year",
+          "sex"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 1990,
+          "end": 2019
+        }
+      },
+      {
+        "name": "mortality_heart_disease",
+        "rows": 60,
+        "cols": 4,
+        "grain": "(year, sex)",
+        "primary_key": [
+          "year",
+          "sex"
+        ],
+        "primary_key_unique": true,
+        "date_range": {
+          "start": 1990,
+          "end": 2019
+        }
+      }
+    ]
+  },
+  "quality_gates": [
+    {
+      "name": "minimum_completeness",
+      "threshold": 90.0,
+      "actual": 100.0,
+      "status": "PASSED"
+    },
+    {
+      "name": "no_critical_issues",
+      "threshold": 0,
+      "actual": 0,
+      "status": "PASSED"
+    },
+    {
+      "name": "business_rule_compliance",
+      "threshold": 95.0,
+      "actual": 100.0,
+      "status": "PASSED"
+    },
+    {
+      "name": "data_freshness_utilization",
+      "threshold": 2020,
+      "actual": 2020,
+      "status": "PASSED"
+    },
+    {
+      "name": "data_freshness_outcomes",
+      "threshold": 2019,
+      "actual": 2019,
+      "status": "PASSED"
+    },
+    {
+      "name": "overall_quality_score",
+      "threshold": 80.0,
+      "actual": 98.45,
+      "status": "PASSED"
+    }
+  ],
+  "issues_summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 1,
+    "info": 1
+  },
+  "high_priority_issues": [
+    {
+      "issue_id": "QI-003",
+      "severity": "MEDIUM",
+      "category": "Accuracy",
+      "column": "rate",
+      "description": "Rate bases differ: hospital admissions (per 1,000) vs mortality (per 100,000) \u2014 not directly comparable without normalisation",
+      "recommended_action": "Normalise all rates to per-100,000 in cleaning stage"
+    }
+  ],
+  "outputs": [
+    "problem-statement/ps-005-healthcare-equity-disparities/notebooks/02_data_validation.ipynb",
+    "shared/data/3_interim/equity_quality_profile_20260410_075854.csv",
+    "shared/data/3_interim/equity_quality_issues_20260410_075854.csv",
+    "shared/data/3_interim/equity_business_rules_20260410_075854.csv",
+    "docs/data-dictionary/equity_validated.md",
+    "problem-statement/ps-005-healthcare-equity-disparities/logs/validation/validation_20260410_075854.log",
+    "docs/agent-handoffs/validation/ps-005-healthcare-equity-disparities/validation_to_cleaning_20260410_075854.json"
+  ],
+  "output_artifacts": {
+    "notebook": "problem-statement/ps-005-healthcare-equity-disparities/notebooks/02_data_validation.ipynb",
+    "quality_profile": "shared/data/3_interim/equity_quality_profile_20260410_075854.csv",
+    "issues_report": "shared/data/3_interim/equity_quality_issues_20260410_075854.csv",
+    "rules_report": "shared/data/3_interim/equity_business_rules_20260410_075854.csv",
+    "data_dictionary": "docs/data-dictionary/equity_validated.md",
+    "log": "problem-statement/ps-005-healthcare-equity-disparities/logs/validation/validation_20260410_075854.log"
+  },
+  "summary": "PS-005 data validation complete. 6 equity datasets, 546 rows, 23 columns profiled. Overall quality score 98/100. Zero nulls, zero critical issues, zero PK violations. 23 business rules at 100.0% compliance. Key actions for cleaning: standardise age_group format, normalise rate bases to per-100,000, align temporal window to 2006-2019 for cross-dataset joins.",
+  "issues_found": [
+    "hospital_admissions: 9 age groups use space-padded separators (e.g. '0 - 4')",
+    "ltc_admissions has no sex stratification \u2014 limits gender equity analysis for long-term care",
+    "Rate bases differ: hospital admissions (per 1,000) vs mortality (per 100,000) \u2014 not directly comparable without normalisation"
+  ],
+  "recommendations": [
+    "Standardise age_group labels to '0-4' format",
+    "Normalise all rates to per-100,000 baseline for cross-dataset comparability",
+    "Align temporal window to 2006-2019 for cross-dataset equity joins",
+    "Document LTC sex stratification gap as analytical limitation in final report",
+    "Create composite year+sex join key for multi-dataset disparity calculations",
+    "Request ethnicity/socioeconomic stratification from MOH for enhanced equity analysis"
+  ],
+  "recommended_cleaning_steps": [
+    {
+      "priority": 1,
+      "step": "Standardise age_group format",
+      "method": "Replace ' - ' with '-', '& Over' with '+'",
+      "affected_rows": 270,
+      "affected_dataset": "hospital_admissions"
+    },
+    {
+      "priority": 2,
+      "step": "Normalise rate to per-100,000",
+      "method": "Multiply admission_rate_per_1000 by 100",
+      "affected_rows": 270,
+      "affected_dataset": "hospital_admissions"
+    },
+    {
+      "priority": 3,
+      "step": "Temporal alignment to 2006-2019",
+      "method": "Filter year BETWEEN 2006 AND 2019",
+      "affected_rows": 546,
+      "affected_dataset": "all"
+    },
+    {
+      "priority": 4,
+      "step": "Create year+sex composite join key",
+      "method": "Concatenate year and sex as string",
+      "affected_rows": 516,
+      "affected_dataset": "hospital_admissions, polyclinic_attendances, mortality_*"
+    },
+    {
+      "priority": 5,
+      "step": "Calculate disparity ratios",
+      "method": "Pivot on sex, compute male/female rate",
+      "affected_rows": 270,
+      "affected_dataset": "hospital_admissions"
+    },
+    {
+      "priority": 6,
+      "step": "Flag temporal outliers",
+      "method": "|rate - rolling_mean_3yr| > 3sigma",
+      "affected_rows": 0,
+      "affected_dataset": "all"
+    }
+  ],
+  "next_steps": {
+    "recommended_agent": "data-cleaning",
+    "ready_for_handoff": true,
+    "blocking_issues": []
+  }
+}
