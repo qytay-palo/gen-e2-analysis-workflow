@@ -1,7 +1,8 @@
 ---
 name: generate-implementation-plan
 description: Generate a detailed data analysis implementation plan for a given user stories, including a breakdown of steps and a todo list.
-tools: [read, edit, write, grep, glob, bash]
+tools: ['read', 'execute', 'edit', 'search']
+model: GPT-5.4
 ---
 
 ## Role

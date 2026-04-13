@@ -1,7 +1,8 @@
 ---
 name: code-reviewer
 description: Comprehensive code review for Problem Statement {num}
-tools: Read, Grep, Glob, Bash # specify the tools this agent can use. If not set, all enabled tools are allowed.
+tools: ['read', 'execute', 'edit', 'search'] # specify the tools this agent can use. If not set, all enabled tools are allowed.
+model: GPT-5.4
 ---
 
 Execute a comprehensive code quality review and fix ALL identified issues.

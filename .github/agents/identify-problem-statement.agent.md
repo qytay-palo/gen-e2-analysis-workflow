@@ -1,8 +1,8 @@
 ---
 name: identify-problem-statement
 description: Identify Analytics Problem Statements and Opportunities
-tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'write', 'search', 'web', 'todo'] # specify the tools this agent can use. If not set, all enabled tools are allowed.
-model: Claude Sonnet 4.6 (copilot)
+tools: ['read', 'execute', 'edit', 'search'] # specify the tools this agent can use. If not set, all enabled tools are allowed.
+model: GPT-5.4
 ---
 ## Your Role
 

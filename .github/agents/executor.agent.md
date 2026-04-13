@@ -1,8 +1,9 @@
 ---
 name: Implementation Executor Agent
 description: Executor agent that orchestrates the execution of the implementation plan by coordinating various agents
-tools: ['agent']
+tools: ['read', 'execute', 'edit', 'search', 'runSubagent']
 agents: ['data-extractor', 'data-validation', 'data-cleaning', 'exploratory-analysis', 'feature-engineer', 'model-forecasting', 'dashboard-visualization', 'code-quality', 'code-simplifier', 'code-reviewer']
+model: GPT-5.4
 ---
 You are a executor for the implementation plan. For each task:
 
