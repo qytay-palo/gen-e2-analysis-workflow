@@ -42,13 +42,13 @@ Read these before proceeding:
 | User Stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
 | Exploratory Analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
 | Model Forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
-| Existing analysis | `problem-statements/ps-{num}-{name}/results/` and `reports/figures/` |
+| Existing analysis | `artifacts/ps-{num}-{name}/results/` and `reports/figures/` |
 
 ---
 
 ## Non-Negotiable Rules
 
-- **Use only real data** — load from `shared/data/` or `problem-statements/ps-{num}-{name}/data/`
+- **Use only real data** — load from `shared/data/` or `artifacts/ps-{num}-{name}/data/`
 - **Validate every column before charting** — drop or substitute all-zero, all-null, or single-value columns
 - **Complete Objective Coverage Table before writing any code** — zero Gap rows required
 - **Load data once at app startup** — never inside callbacks
@@ -81,8 +81,8 @@ Read these before proceeding:
 1. Read the previous agent's handoff JSON.
 2. Extract every objective and sub-requirement from the problem statement.
 3. **MANDATORY: Complete Data Inventory** — list ALL files in:
-   - `problem-statements/ps-{num}-{name}/results/tables/`
-   - `problem-statements/ps-{num}-{name}/data/4_processed/`
+   - `artifacts/ps-{num}-{name}/results/tables/`
+   - `artifacts/ps-{num}-{name}/data/4_processed/`
    - `shared/data/3_interim/`
 4. Classify every prior analysis output:
    - `IN_DASHBOARD` — shown as interactive chart or KPI card
@@ -96,7 +96,7 @@ Any output that answers a PS objective must be `IN_DASHBOARD` or `DOWNLOADABLE`.
 
 ### Step 1b — Results & Figures Relevance Filter (Gate: complete before Step 2)
 
-Scan every file under `problem-statement/ps-{num}-{name}/results/` and `problem-statement/ps-{num}-{name}/reports/figures/`. For each file, ask: **does this output directly answer a PS objective or stakeholder question?** If not, exclude it.
+Scan every file under `artifacts/ps-{num}-{name}/results/` and `artifacts/ps-{num}-{name}/reports/figures/`. For each file, ask: **does this output directly answer a PS objective or stakeholder question?** If not, exclude it.
 
 Classify each file as:
 
@@ -135,9 +135,9 @@ Scan the following locations and list every file produced by prior agents:
 | Location | What to expect |
 |---|---|
 | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/` | EDA handoff JSON(s); contains `key_findings`, `charts_produced`, `statistical_tests` |
-| `problem-statement/ps-{num}-{name}/results/tables/` | Summary tables, aggregations, frequency counts |
-| `problem-statement/ps-{num}-{name}/reports/figures/` | Static charts and plots saved as PNG/PDF |
-| `problem-statement/ps-{num}-{name}/data/4_processed/` | Cleaned and engineered feature files |
+| `artifacts/ps-{num}-{name}/results/tables/` | Summary tables, aggregations, frequency counts |
+| `artifacts/ps-{num}-{name}/reports/figures/` | Static charts and plots saved as PNG/PDF |
+| `artifacts/ps-{num}-{name}/data/4_processed/` | Cleaned and engineered feature files |
 | `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/` | Feature engineering handoff JSON(s) |
 
 For each file record: `filename`, `description` (inferred from filename or handoff JSON), `producing_agent` (EDA / feature-engineering / model-forecasting).
@@ -212,7 +212,7 @@ Rules:
 ### Step 4 — Dashboard Storytelling Structure
 
 Design tabs around these questions — not around data tables.
-Always refer to existing `problem-statements/ps-{num}-{name}/results/*` and `problem-statements/ps-{num}-{name}/reports/*` for charts that can be adapted 
+Always refer to existing `artifacts/ps-{num}-{name}/results/*` and `artifacts/ps-{num}-{name}/reports/*` for charts that can be adapted 
 
 **Goal:**
 - Adds value to data and insights.
@@ -281,7 +281,7 @@ Before writing code, check `shared/src/visualization/`. Any utility usable by 2+
 
 **Stack**: Plotly Dash (`dash>=2.14.0`, `dash-bootstrap-components>=1.5.0`, `plotly>=5.18.0`) · Polars for data · `flask_caching>=2.1.0` for memoisation
 
-**File**: `problem-statements/ps-{num}-{name}/src/visualization/{domain}_dashboard.py`
+**File**: `artifacts/ps-{num}-{name}/src/visualization/{domain}_dashboard.py`
 
 **Required app initialisation:**
 ```python
@@ -756,11 +756,11 @@ dbc.Col(dcc.Graph(...), xs=12, md=12, lg=4)
 
 | Artifact | Path |
 |---|---|
-| Dashboard | `problem-statements/ps-{num}-{name}/src/visualization/{domain}_dashboard.py` |
-| Data loader | `problem-statements/ps-{num}-{name}/src/visualization/dashboard_data_loader.py` |
-| Config | `problem-statements/ps-{num}-{name}/config/dashboard_config.yml` |
-| Exported HTML | `problem-statements/ps-{num}-{name}/reports/dashboards/{dashboard_name}.html` |
-| User guide | `problem-statements/ps-{num}-{name}/reports/dashboards/README.md` |
+| Dashboard | `artifacts/ps-{num}-{name}/src/visualization/{domain}_dashboard.py` |
+| Data loader | `artifacts/ps-{num}-{name}/src/visualization/dashboard_data_loader.py` |
+| Config | `artifacts/ps-{num}-{name}/config/dashboard_config.yml` |
+| Exported HTML | `artifacts/ps-{num}-{name}/reports/dashboards/{dashboard_name}.html` |
+| User guide | `artifacts/ps-{num}-{name}/reports/dashboards/README.md` |
 | Handoff JSON | `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_documentation_{timestamp}.json` |
 
 **Handoff JSON must include**: `objective_coverage_gaps` (must be `[]`) · `data_quality_checks` · `notebook_output_audit` · `shared_code_decisions` · `dashboard_summary` (kpis_count, charts_count, tabs_count) · `about_tab_validation` (plain_language: bool, no_ps_numbers: bool) · `storytelling_elements` (level_1, level_2, level_3).
@@ -769,7 +769,7 @@ dbc.Col(dcc.Graph(...), xs=12, md=12, lg=4)
 
 ### Update README
 
-After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
+After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
 
 1. Add a `## Folder Structure` section with the current directory layout and purpose of each folder
 2. Add a `## How to Run` section with concise instructions to reproduce the cleaning

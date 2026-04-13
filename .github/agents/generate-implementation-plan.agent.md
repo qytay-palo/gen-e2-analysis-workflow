@@ -92,10 +92,10 @@ List all files with `[CREATE]`, `[MODIFY]`, `[DELETE]` indicators. For each:
   - Config: `shared/config/base.yml`
   - Logging: `logs/etl/extraction_{timestamp}.log`
 
-- **[CREATE] `problem-statement/ps-{num}-{name}/src/{name}_utils.py`** (if problem-specific)
+- **[CREATE] `artifacts/ps-{num}-{name}/src/{name}_utils.py`** (if problem-specific)
   - Function: `custom_processing(df: pl.DataFrame) -> pl.DataFrame`
   - Dependencies: Import from `shared.src.data_processing`
-  - Config: `problem-statement/ps-{num}-{name}/config/config.yml`
+  - Config: `artifacts/ps-{num}-{name}/config/config.yml`
 
 - **[MODIFY] `shared/src/analysis/trends.py`**
   - Add: `detect_outbreak_anomalies(df: pl.DataFrame, threshold: float) -> pl.DataFrame`
@@ -582,23 +582,23 @@ Each phase can be completed independently
 Generate code in this sequence to ensure dependencies exist:
 
 **Phase 1: Foundation**
-1. Configuration files (`shared/config/base.yml` for shared settings, `problem-statement/ps-{num}-{name}/config/config.yml` for problem-specific)
+1. Configuration files (`shared/config/base.yml` for shared settings, `artifacts/ps-{num}-{name}/config/config.yml` for problem-specific)
 2. Data schemas (Pydantic/dataclasses in `shared/src/utils/schemas.py`)
 3. Utility modules (in `shared/src/utils/`: `logger.py`, `config_loader.py`, validators)
-4. Test fixtures (`shared/tests/conftest.py` for shared fixtures, `problem-statement/ps-{num}-{name}/tests/conftest.py` for problem-specific)
+4. Test fixtures (`shared/tests/conftest.py` for shared fixtures, `artifacts/ps-{num}-{name}/tests/conftest.py` for problem-specific)
 
 **Phase 2: Core Logic** (Determine if shared or problem-specific)
-5. Data extraction (`shared/src/data_processing/extractors/` if reusable, else `problem-statement/ps-{num}-{name}/src/`)
+5. Data extraction (`shared/src/data_processing/extractors/` if reusable, else `artifacts/ps-{num}-{name}/src/`)
 6. Data cleaning and string normalization (`shared/src/data_processing/cleaning.py` for common logic - see [Reference Guide](./implementation-plan-reference-guide.md#section-635-string-normalization-patterns) for string standardization patterns)
-7. Feature engineering (`shared/src/analysis/` or `problem-statement/ps-{num}-{name}/src/` depending on reusability)
-8. Analysis modules (`shared/src/analysis/` for general methods, `problem-statement/ps-{num}-{name}/src/` for custom)
+7. Feature engineering (`shared/src/analysis/` or `artifacts/ps-{num}-{name}/src/` depending on reusability)
+8. Analysis modules (`shared/src/analysis/` for general methods, `artifacts/ps-{num}-{name}/src/` for custom)
 
 **Phase 3: Integration** (Problem-specific)
-9. Unit tests (`shared/tests/unit/` for shared code, `problem-statement/ps-{num}-{name}/tests/` for problem-specific)
-10. Integration tests (`problem-statement/ps-{num}-{name}/tests/integration/`)
-11. Pipeline orchestration (`problem-statement/ps-{num}-{name}/scripts/run_pipeline.py`)
-12. Notebooks (`problem-statement/ps-{num}-{name}/notebooks/{{user-story_num}-{name}.ipynb/`)
-13. Documentation (`problem-statement/ps-{num}-{name}/README.md`, methodology docs)
+9. Unit tests (`shared/tests/unit/` for shared code, `artifacts/ps-{num}-{name}/tests/` for problem-specific)
+10. Integration tests (`artifacts/ps-{num}-{name}/tests/integration/`)
+11. Pipeline orchestration (`artifacts/ps-{num}-{name}/scripts/run_pipeline.py`)
+12. Notebooks (`artifacts/ps-{num}-{name}/notebooks/{{user-story_num}-{name}.ipynb/`)
+13. Documentation (`artifacts/ps-{num}-{name}/README.md`, methodology docs)
 
 ### 14. Data Quality & Validation [CRITICAL]
 

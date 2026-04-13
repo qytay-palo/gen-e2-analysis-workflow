@@ -29,6 +29,19 @@ By weaving these elements together, the Narrative Compiler ensures that data doe
 
 ---
 
+## Inputs
+
+| Source | Location |
+|---|---|
+| Problem Statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
+| User Stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
+| Exploratory Analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
+| Model Forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
+| Existing analysis | `artifacts/ps-{num}-{name}/results/` and `reports/figures/` |
+
+> **Read the feature engineering handoff first.** It defines the target variable, null handling strategy, scaling requirements, temporal CV recommendation, and leakage warnings.
+
+
 ## Task Workflow
 
 ### Phase 1: Problem Statement Analysis
@@ -58,8 +71,8 @@ Generate a prioritized list of 5 questions that stakeholders need answered:
 ### Phase 2: Metrics and Data Source Selection
 
 For each problem statement, analyze:
-- `problem-statement/ps-{num}-{name}/reports/`
-- `problem-statement/ps-{num}-{name}/results/`
+- `artifacts/ps-{num}-{name}/reports/`
+- `artifacts/ps-{num}-{name}/results/`
 
 #### 2.1 Identify Core KPIs
 
@@ -437,7 +450,7 @@ Process ps-001-healthcare-workforce-sustainability:
 1. Read docs/objectives/problem_statements/ps-001-healthcare-workforce-sustainability.md
 2. Extract stakeholders: MOH executives, regional planners, HR managers  
 3. Identify key questions: "Will we have enough doctors in 2030?"
-4. Review problem-statement/ps-001-healthcare-workforce-sustainability/results/
+4. Review artifacts/ps-001-healthcare-workforce-sustainability/results/
 5. Select KPIs: Workforce gap projection, skills shortage by specialty
 6. Generate outputs:
    - docs/agent-handoffs/narrative-compiler/ps-001-healthcare-workforce-sustainability/dashboard-narrative.md

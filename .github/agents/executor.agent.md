@@ -21,7 +21,7 @@ Before starting, gather the following context:
 
 **✅ CORRECT - All artifacts in ONE problem-statement directory:**
 ```
-problem-statement/ps-{num}-{descriptive-name}/
+artifacts/ps-{num}-{descriptive-name}/
 ├── notebooks/              # ALL notebooks for this PS
 ├── src/                    # Problem-specific code
 │   ├── data_processing/    # ETL and cleaning code
@@ -90,7 +90,7 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
     2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/01-extract-*.md`
     3. **Data Dictionary**: `docs/data-dictionary/` (for schema definitions)
     4. **Data Sources**: `docs/project-context/data-sources.md` (for source details)
-    5. **Folder Structure**: `problem-statements/ps-{num}-{name}/README.md` and `shared/README.md` 
+    5. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` 
 - Expected outputs: `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
 **code-quality** (verify extraction):
@@ -211,7 +211,7 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
     2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-**-dashboard.md`
     3. **EDA Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
     4. **Forecasting Handoff** (if Phase 4 ran): `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*`
-    5. **Existing analysis**: `problem-statement/ps-{num}-{name}/results/` and `reports/figures/`
+    5. **Existing analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
 - Expected outputs: `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_{next_agent}_{timestamp}.json` + dashboard scripts
 
 **code-quality** (verify dashboard):

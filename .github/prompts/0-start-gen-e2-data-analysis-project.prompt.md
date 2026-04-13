@@ -84,7 +84,7 @@ Below is the base folder structure:
 │   └── config/       # → Shared configuration files
 │       ├── base.yml       # → Base configuration settings
 │       └── databricks.yml # → Platform-specific settings
-├── problem-statements/  # [PHASE 3-10] SELF-CONTAINED ANALYSES
+├── artifacts/  # [PHASE 3-10] SELF-CONTAINED ANALYSES
 │   ├── ps-001-{problem-name}/  # 📦 Complete analysis package for Problem Statement 1
 │   │   ├── README.md           # → Problem overview, objectives, workflows
 │   │   │
@@ -133,7 +133,7 @@ Below is the base folder structure:
 
 **Key Principles:**
 1. **Shared Resources** (`shared/`): Reusable code, raw data, SQL queries - write once, use everywhere
-2. **Problem-Specific** (`problem-statement/ps-{num}/`): Self-contained analyses with all outputs
+2. **Problem-Specific** (`artifacts/ps-{num}-{name}/`): Self-contained analyses with all outputs
 3. **Import Pattern**: Problem-specific code imports from `shared/src/` for maximum reusability
 4. **Data Strategy**: Raw data in `shared/data/1_raw/` (single source), processed data in problem folders
 5. **Isolation**: Each problem statement can be archived/shared as a complete package

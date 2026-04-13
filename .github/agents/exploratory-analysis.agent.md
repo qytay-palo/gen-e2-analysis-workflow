@@ -110,9 +110,9 @@ model = LinearRegression().fit(X_scaled, y)
 - [ ] Load and review both handoff files
 - [ ] Extract business questions from the problem statement
 - [ ] Map each business question to an EDA layer (univariate → predictive)
-- [ ] Create Jupyter notebook: `problem-statements/ps-{num}-{name}/notebooks/{story_num}_explore_{description}.ipynb` — **if this file already exists, update the existing notebook rather than creating a new one**
+- [ ] Create Jupyter notebook: `artifacts/ps-{num}-{name}/notebooks/{story_num}_explore_{description}.ipynb` — **if this file already exists, update the existing notebook rather than creating a new one**
 - [ ] Load dataset with Polars; print shape, dtypes, and null counts
-- [ ] Initialise logger: `problem-statements/ps-{num}-{name}/logs/analysis/exploratory_{timestamp}.log`
+- [ ] Initialise logger: `artifacts/ps-{num}-{name}/logs/analysis/exploratory_{timestamp}.log`
 
 ### Stage 5B: Univariate + Bivariate Analysis
 
@@ -152,7 +152,7 @@ Document limitations explicitly. A finding that does not survive sensitivity tes
 
 **1. Notebook** — ensure it runs end-to-end, clean output, narrative between cells, all charts inline.
 
-**2. Executive summary** — save to `problem-statements/ps-{num}-{name}/results/exports/executive_summary_{timestamp}.md`
+**2. Executive summary** — save to `artifacts/ps-{num}-{name}/results/exports/executive_summary_{timestamp}.md`
   - 3–5 key findings as bullets
   - 2–3 top charts (embed or reference)
   - Prioritised recommendations
@@ -169,20 +169,20 @@ Document limitations explicitly. A finding that does not survive sensitivity tes
 
 | Artefact | Path |
 |----------|------|
-| Notebook | `problem-statements/ps-{num}-{name}/notebooks/` |
-| Figures (PNG) | `problem-statements/ps-{num}-{name}/results/figures/` |
-| Summary tables (CSV) | `problem-statements/ps-{num}-{name}/results/tables/` |
-| Metrics (CSV) | `problem-statements/ps-{num}-{name}/results/metrics/` |
-| Stakeholder exports | `problem-statements/ps-{num}-{name}/results/exports/` |
-| Executive summary | `problem-statements/ps-{num}-{name}/results/exports/` |
+| Notebook | `artifacts/ps-{num}-{name}/notebooks/` |
+| Figures (PNG) | `artifacts/ps-{num}-{name}/results/figures/` |
+| Summary tables (CSV) | `artifacts/ps-{num}-{name}/results/tables/` |
+| Metrics (CSV) | `artifacts/ps-{num}-{name}/results/metrics/` |
+| Stakeholder exports | `artifacts/ps-{num}-{name}/results/exports/` |
+| Executive summary | `artifacts/ps-{num}-{name}/results/exports/` |
 | Detailed report | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/` |
-| Log | `problem-statements/ps-{num}-{name}/logs/analysis/` |
+| Log | `artifacts/ps-{num}-{name}/logs/analysis/` |
 
 ---
 
 ### Update README
 
-After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
+After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
 
 1. Add a `## Folder Structure` section with the current directory layout and purpose of each folder
 2. Add a `## How to Run` section with concise instructions to reproduce the cleaning
@@ -226,14 +226,14 @@ Write the handoff JSON immediately after outputs are saved. Do not proceed to th
     "data_documentation": "docs/data-dictionary/workforce_validated.md"
   },
   "output_artifacts": {
-    "analysis_notebook": "problem-statements/ps-001-workforce/notebooks/04_explore_workforce_analysis.ipynb",
-    "executive_summary": "problem-statements/ps-001-workforce/results/exports/executive_summary_20260401.md",
+    "analysis_notebook": "artifacts/ps-001-workforce/notebooks/04_explore_workforce_analysis.ipynb",
+    "executive_summary": "artifacts/ps-001-workforce/results/exports/executive_summary_20260401.md",
     "detailed_report": "docs/agent-handoffs/exploratory-analysis/ps-001-workforce/exploratory_to_model-forecasting_20260401.md",
-    "figures_dir": "problem-statements/ps-001-workforce/results/figures/",
-    "tables_dir": "problem-statements/ps-001-workforce/results/tables/",
-    "metrics_dir": "problem-statements/ps-001-workforce/results/metrics/",
-    "exports_dir": "problem-statements/ps-001-workforce/results/exports/",
-    "log": "problem-statements/ps-001-workforce/logs/analysis/exploratory_20260401_093000.log"
+    "figures_dir": "artifacts/ps-001-workforce/results/figures/",
+    "tables_dir": "artifacts/ps-001-workforce/results/tables/",
+    "metrics_dir": "artifacts/ps-001-workforce/results/metrics/",
+    "exports_dir": "artifacts/ps-001-workforce/results/exports/",
+    "log": "artifacts/ps-001-workforce/logs/analysis/exploratory_20260401_093000.log"
   },
   "key_findings": [
     {

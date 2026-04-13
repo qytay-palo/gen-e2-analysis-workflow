@@ -30,7 +30,7 @@ Model forecasting uses **historical data, statistical algorithms, and machine le
 | Feature engineering handoff | `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/handoff_{timestamp}.md` |
 | Exploratory analysis handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/handoff_{timestamp}.md` |
 | Feature dataset | `data/4_processed/ps-{num}-{name}_features_{timestamp}.parquet` |
-| Feature dictionary | `problem-statements/ps-{num}-{name}/results/feature_dictionary_{timestamp}.csv` |
+| Feature dictionary | `artifacts/ps-{num}-{name}/results/feature_dictionary_{timestamp}.csv` |
 | Problem statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
 | User stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
 | Domain knowledge | `docs/domain-knowledge/` |
@@ -73,10 +73,10 @@ ALWAYS proceed to:
 - [ ] Read the feature engineering handoff — confirm target variable, null strategy, leakage flags
 - [ ] Read the problem statement — extract success criteria, business objectives, and KPI thresholds
 - [ ] Review `docs/domain-knowledge/time-series-forecasting-methods.md`
-- [ ] Create notebook: `problem-statements/ps-{num}-{name}/notebooks/{story_num}_model_{description}.ipynb`
+- [ ] Create notebook: `artifacts/ps-{num}-{name}/notebooks/{story_num}_model_{description}.ipynb`
 - [ ] Load feature dataset with Polars; verify schema, null counts, row count, and temporal coverage
-- [ ] Initialise loguru logger: `problem-statements/ps-{num}-{name}/logs/models/modeling_{timestamp}.log`
-- [ ] Create output directory: `problem-statements/ps-{num}-{name}/models/`
+- [ ] Initialise loguru logger: `artifacts/ps-{num}-{name}/logs/models/modeling_{timestamp}.log`
+- [ ] Create output directory: `artifacts/ps-{num}-{name}/models/`
 - [ ] Document in a notebook markdown cell:
   - **Target variable**: name, dtype, business meaning
   - **Evaluation horizon**: number of forecast periods / test set size
@@ -92,7 +92,7 @@ import json, os
 
 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 logger.add(
-    f'problem-statements/ps-{{num}}-{{name}}/logs/models/modeling_{timestamp}.log',
+    f'artifacts/ps-{{num}}-{{name}}/logs/models/modeling_{timestamp}.log',
     rotation='10 MB', level='INFO'
 )
 
@@ -298,7 +298,7 @@ results_df = pl.DataFrame([
     evaluate(y_test, ridge.predict(X_test),    'Ridge'),
     evaluate(y_test, xgb_model.predict(X_test), 'XGBoost'),
 ]).sort('RMSE')
-results_df.write_csv(f'problem-statements/ps-{{num}}-{{name}}/results/model_comparison_{timestamp}.csv')
+results_df.write_csv(f'artifacts/ps-{{num}}-{{name}}/results/model_comparison_{timestamp}.csv')
 ```
 
 **Decision thresholds**:
@@ -352,7 +352,7 @@ importance_df = (
     pl.DataFrame({'feature': list(importance.keys()), 'importance_gain': list(importance.values())})
     .sort('importance_gain', descending=True)
 )
-importance_df.write_csv(f'problem-statements/ps-{{num}}-{{name}}/results/feature_importance_model_{timestamp}.csv')
+importance_df.write_csv(f'artifacts/ps-{{num}}-{{name}}/results/feature_importance_model_{timestamp}.csv')
 ```
 
 In a markdown cell, write a **domain-language interpretation** of the top 3 SHAP drivers. Example: *"Physician density at lag-1 is the strongest predictor — a 1-unit increase is associated with a 4.2% reduction in projected ASMR, consistent with literature on primary care access."*
@@ -404,7 +404,7 @@ priority_df = (
       .sort('peak_projected', descending=True)
       .with_columns(pl.col('peak_projected').rank('dense', descending=True).alias('priority_rank'))
 )
-priority_df.write_csv(f'problem-statements/ps-{{num}}-{{name}}/results/priority_ranking_{timestamp}.csv')
+priority_df.write_csv(f'artifacts/ps-{{num}}-{{name}}/results/priority_ranking_{timestamp}.csv')
 ```
 
 ### D3: Prescriptive Recommendations
@@ -440,7 +440,7 @@ Recommendations must be grounded in SHAP top drivers. Cite feature names. Minimu
 ```python
 import joblib
 
-model_dir = f'problem-statements/ps-{{num}}-{{name}}/models'
+model_dir = f'artifacts/ps-{{num}}-{{name}}/models'
 os.makedirs(model_dir, exist_ok=True)
 
 # Model + preprocessors
@@ -491,7 +491,7 @@ with open(f'{model_dir}/model_registry_{timestamp}.json', 'w') as f:
 
 ### E2: Modeling Report
 
-Save `problem-statements/ps-{num}-{name}/results/modeling_report_{timestamp}.md`:
+Save `artifacts/ps-{num}-{name}/results/modeling_report_{timestamp}.md`:
 
 ```markdown
 # Modeling Report — PS-{num}: {name}
@@ -571,7 +571,7 @@ Save `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/handoff_{timestamp}.
 ## Artifacts
 | Artifact | Path |
 |----------|------|
-| Best model | `problem-statements/ps-{num}-{name}/models/xgboost_{timestamp}.pkl` |
+| Best model | `artifacts/ps-{num}-{name}/models/{model_type}_{timestamp}.pkl` |
 | Baseline forecast | `…/models/forecast_baseline_{timestamp}.parquet` |
 | Optimistic forecast | `…/models/forecast_optimistic_{timestamp}.parquet` |
 | Pessimistic forecast | `…/models/forecast_pessimistic_{timestamp}.parquet` |
@@ -631,7 +631,7 @@ uv pip install xgboost shap prophet statsmodels ruptures scikit-learn joblib log
 
 ### Update README
 
-After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
+After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
 
 1. Add a `## Folder Structure` section with the current directory layout and purpose of each folder
 2. Add a `## How to Run` section with concise instructions to reproduce the cleaning

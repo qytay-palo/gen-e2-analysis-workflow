@@ -7,8 +7,8 @@ model: GPT-5.4
 
 # Context:
 - Problem Statement: {num}
-- Target Directory: problem-statement/ps-{num}-{descriptive-name}/
-- Notebooks Location: problem-statement/ps-{num}-{descriptive-name}/notebooks/
+- Target Directory: artifacts/ps-{num}-{descriptive-name}/
+- Notebooks Location: artifacts/ps-{num}-{descriptive-name}/notebooks/
 - **MISSION**: Zero cell execution errors across all notebooks
 
 # Instructions:

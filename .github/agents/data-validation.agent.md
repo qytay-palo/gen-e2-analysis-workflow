@@ -39,8 +39,8 @@ Read these skill files **before starting** — they define the methodology:
 - [ ] Read the problem statement — note the success criteria, key metrics, and expected data shapes
 - [ ] Load and review the extraction handoff — confirm files, row counts, and any flagged issues
 - [ ] Verify raw data files exist and are readable (check encoding, delimiters, file size)
-- [ ] Create a Jupyter notebook at `problem-statements/ps-{num}-{name}/notebooks/{story_num}_validate_{description}.ipynb` — **if this file already exists, update the existing notebook rather than creating a new one**
-- [ ] Initialise logger: `problem-statements/ps-{num}-{name}/logs/validation/validation_{timestamp}.log`
+- [ ] Create a Jupyter notebook at `artifacts/ps-{num}-{name}/notebooks/{story_num}_validate_{description}.ipynb` — **if this file already exists, update the existing notebook rather than creating a new one**
+- [ ] Initialise logger: `artifacts/ps-{num}-{name}/logs/validation/validation_{timestamp}.log`
 
 **Blocker**: If raw data is missing or inaccessible, update the extraction handoff with findings and halt.
 
@@ -169,12 +169,12 @@ All outputs use `{timestamp}` format `YYYYMMDD_HHMMSS`.
 
 | Artifact | Location | Description |
 |----------|----------|-------------|
-| Validation notebook | `problem-statements/ps-{num}-{name}/notebooks/{story_num}_validate_{desc}.ipynb` | Full profiling code, charts, findings |
+| Validation notebook | `artifacts/ps-{num}-{name}/notebooks/{story_num}_validate_{desc}.ipynb` | Full profiling code, charts, findings |
 | Quality profile | `shared/data/3_interim/{domain}_quality_profile_{timestamp}.csv` | Column-level quality metrics |
 | Issues report | `shared/data/3_interim/{domain}_quality_issues_{timestamp}.csv` | All issues with severity, count, recommendation |
 | Business rules report | `shared/data/3_interim/{domain}_business_rules_{timestamp}.csv` | Rule-by-rule compliance results |
 | Enhanced data dictionary | `docs/data-dictionary/{domain}_validated.md` | Updated with quality findings and preprocessing guidance |
-| Validation log | `problem-statements/ps-{num}-{name}/logs/validation/validation_{timestamp}.log` | Full execution log |
+| Validation log | `artifacts/ps-{num}-{name}/logs/validation/validation_{timestamp}.log` | Full execution log |
 | Handoff JSON | `docs/agent-handoffs/validation/ps-{num}-{name}/validation_to_cleaning_{timestamp}.json` | Machine-readable summary for next agent |
 
 ### Quality profile schema
@@ -230,7 +230,7 @@ Append the following section to `docs/data-dictionary/{domain}_validated.md`:
 
 ### Update README
 
-After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
+After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
 
 1. Add a `## Folder Structure` section with the current directory layout and purpose of each folder
 2. Add a `## How to Run` section with concise instructions to reproduce the cleaning
@@ -285,12 +285,12 @@ After saving outputs, update the `problem-statements/ps-{num}-{name}/README.md` 
     }
   ],
   "output_artifacts": {
-    "notebook":         "problem-statements/ps-{num}-{name}/notebooks/{story_num}_validate_{desc}.ipynb",
+    "notebook":         "artifacts/ps-{num}-{name}/notebooks/{story_num}_validate_{desc}.ipynb",
     "quality_profile":  "shared/data/3_interim/{domain}_quality_profile_{timestamp}.csv",
     "issues_report":    "shared/data/3_interim/{domain}_quality_issues_{timestamp}.csv",
     "rules_report":     "shared/data/3_interim/{domain}_business_rules_{timestamp}.csv",
     "data_dictionary":  "docs/data-dictionary/{domain}_validated.md",
-    "log":              "problem-statements/ps-{num}-{name}/logs/validation/validation_{timestamp}.log"
+    "log":              "artifacts/ps-{num}-{name}/logs/validation/validation_{timestamp}.log"
   },
   "recommended_cleaning_steps": [
     {"priority": 1, "step": "Handle nulls in {col}", "method": "{method}", "affected_rows": 0},
