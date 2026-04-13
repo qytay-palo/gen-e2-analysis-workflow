@@ -138,11 +138,6 @@ Below is the base folder structure:
 4. **Data Strategy**: Raw data in `shared/data/1_raw/` (single source), processed data in problem folders
 5. **Isolation**: Each problem statement can be archived/shared as a complete package
 
-**Reference Documentation:**
-- Detailed structure guide: `docs/project_context/folder-structure-guide.md`
-- Approach comparison: `docs/project_context/folder-structure-comparison.md`
-- Folder creation script: `scripts/shared/create_problem_statement.sh`
-
 **Actions:**
    - Update the project structure based on the answers to the initial questions
    - Update README.md file with project overview and hybrid structure explanation

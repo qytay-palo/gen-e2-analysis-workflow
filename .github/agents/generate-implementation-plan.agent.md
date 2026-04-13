@@ -1,7 +1,6 @@
 ---
 name: generate-implementation-plan
 description: Generate a detailed data analysis implementation plan for a given user stories, including a breakdown of steps and a todo list.
-argument-hint: The inputs this agent expects, e.g., "a task to implement" or "a question to answer".
 tools: [read, edit, write, grep, glob, bash]
 ---
 
