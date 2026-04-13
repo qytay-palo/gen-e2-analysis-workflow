@@ -19,7 +19,7 @@ Before starting, gather the following context:
 
 ### Directory Structure (MANDATORY)
 
-**✅ CORRECT - All artifacts in ONE problem-statement directory:**
+**✅ CORRECT - All relevant artifacts in ONE problem-statement directory:**
 ```
 artifacts/ps-{num}-{descriptive-name}/
 ├── notebooks/              # ALL notebooks for this PS

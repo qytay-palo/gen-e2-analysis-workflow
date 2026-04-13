@@ -37,10 +37,7 @@ By weaving these elements together, the Narrative Compiler ensures that data doe
 | User Stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
 | Exploratory Analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
 | Model Forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
-| Existing analysis | `artifacts/ps-{num}-{name}/results/` and `reports/figures/` |
-
-> **Read the feature engineering handoff first.** It defines the target variable, null handling strategy, scaling requirements, temporal CV recommendation, and leakage warnings.
-
+| Existing analysis | `artifacts/ps-{num}-{name}/results/` and `artifacts/ps-{num}-{name}/reports/figures/` |
 
 ## Task Workflow
 

@@ -18,7 +18,7 @@ Execute a comprehensive code quality review and fix ALL identified issues.
 Before ANY other review tasks, you MUST execute ALL code to verify zero errors:
 
 1. **Run ALL Python Scripts (MANDATORY):**
-   - List ALL .py files in the problem-statement directory (src/scripts/, src/data_processing/, src/analysis/, etc.)
+   - List ALL .py files in the artifacts directory (src/scripts/, src/data_processing/, src/analysis/, etc.)
    - Determine correct execution order based on dependencies
    - Execute EVERY .py file one by one
    - Check exit code for each script (must be 0)
