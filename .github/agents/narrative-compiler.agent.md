@@ -34,10 +34,8 @@ By weaving these elements together, the Narrative Compiler ensures that data doe
 | Source | Location |
 |---|---|
 | Problem Statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
-| User Stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
-| Exploratory Analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
-| Model Forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
-| Existing analysis | `artifacts/ps-{num}-{name}/results/` and `artifacts/ps-{num}-{name}/reports/figures/` |
+| Existing Analysis | `artifacts/ps-{num}-{name}/results/` and `artifacts/ps-{num}-{name}/reports/figures/` |
+| Phase 1-4 Hand-offs | latest versions of `docs/agent-handoffs/*/ps-{num}-{name}/*` |
 
 ## Task Workflow
 

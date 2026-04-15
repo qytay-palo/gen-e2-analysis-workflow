@@ -56,7 +56,8 @@ Before declaring delivery complete, confirm that `runSubagent` was called for **
 | 2 | `data-validation` and `data-cleaning` | 2 | ☐ | ☐ |
 | 3 | `exploratory-analysis` and `feature-engineer` | 3 | ☐ | ☐ |
 | 4 | `model-forecasting` | 4 (if applicable) | ☐ / N/A | ☐ / N/A |
-| 5 | `dashboard-visualization` | 5 | ☐ | ☐ |
+| 5 | `narrative-compiler` | 5 | ☐ / N/A | ☐ / N/A |
+| 6 | `dashboard-visualization` | 6 | ☐ | ☐ |
 
 > every non-N/A row must be checked. If any row is unchecked, trigger the missing agent now.
 
@@ -200,7 +201,18 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Input: handoff JSON path from feature-engineer; verify all claimed files exist and are non-empty
 - If FAIL: re-run `feature-engineer` with explicit fix instructions before advancing
 
-# Phase 5: Dashboard Visualization
+# Phase 5: Narrative Compiler
+all `runSubagent` for narrative-compiler.
+
+**narrative-compiler**:
+- Subagent type: `narrative-compiler`
+- Input: 
+    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
+    2. **Existing Analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
+    3. **Phase 1-4 Hand-offs**: Check all handoff JSONs from Phases 1-4 for actual paths to notebooks, datasets, and results; pass all as input
+- Expected outputs: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/narrative_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
+
+# Phase 6: Dashboard Visualization
 
 **TRIGGER NOW**: Call `runSubagent` for `dashboard-visualization`.
 
