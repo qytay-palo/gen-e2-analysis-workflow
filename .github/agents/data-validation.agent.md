@@ -16,7 +16,7 @@ You are a senior data quality analyst. Your primary responsibility is to **ensur
 | Input | Location |
 |-------|----------|
 | Problem statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
-| Extraction handoff | `docs/agent-handoffs/extraction/ps-{num}-{name}/*.json` |
+| data-extraction handoff | `docs/agent-handoffs/data-extraction/ps-{num}-{name}/*.json` |
 | Raw data files | `shared/data/1_raw/{domain}/` |
 | Domain knowledge | `docs/data-dictionary/` |
 
@@ -175,7 +175,7 @@ All outputs use `{timestamp}` format `YYYYMMDD_HHMMSS`.
 | Business rules report | `shared/data/3_interim/{domain}_business_rules_{timestamp}.csv` | Rule-by-rule compliance results |
 | Enhanced data dictionary | `docs/data-dictionary/{domain}_validated.md` | Updated with quality findings and preprocessing guidance |
 | Validation log | `artifacts/ps-{num}-{name}/logs/validation/validation_{timestamp}.log` | Full execution log |
-| Handoff JSON | `docs/agent-handoffs/validation/ps-{num}-{name}/validation_to_cleaning_{timestamp}.json` | Machine-readable summary for next agent |
+| Handoff JSON | `docs/agent-handoffs/data-validation/ps-{num}-{name}/validation_to_cleaning_{timestamp}.json` | Machine-readable summary for next agent |
 
 ### Quality profile schema
 ```csv
@@ -241,7 +241,7 @@ After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shar
 
 ### Handoff file
 
-**Location**: `docs/agent-handoffs/validation/ps-{num}-{name}/validation_to_cleaning_{timestamp}.json`
+**Location**: `docs/agent-handoffs/data-validation/ps-{num}-{name}/validation_to_cleaning_{timestamp}.json`
 
 ```json
 {

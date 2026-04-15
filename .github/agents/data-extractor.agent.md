@@ -158,7 +158,7 @@ Create or update `docs/data-dictionary/{domain}_extracted.md` with:
 | Validation summary | `shared/data/3_interim/{domain}_validation_summary_{YYYYMMDD}.csv` | Yes |
 | Data dictionary update | `docs/data-dictionary/{domain}_extracted.md` | Yes |
 | Extraction log | `artifacts/ps-{num}-{name}/logs/etl/extraction_{timestamp}.log` | Yes |
-| Agent handoff file | `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_cleaning_{timestamp}.json` | Yes |
+| Agent handoff file | `docs/agent-handoffs/data-extraction/ps-{num}-{name}/extraction_to_cleaning_{timestamp}.json` | Yes |
 
 ### Extractor Module Structure
 
@@ -200,7 +200,7 @@ After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shar
 
 ## Agent Handoff File
 
-**Location**: `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_cleaning_{timestamp}.json`
+**Location**: `docs/agent-handoffs/data-extraction/ps-{num}-{name}/extraction_to_cleaning_{timestamp}.json`
 
 Required fields:
 

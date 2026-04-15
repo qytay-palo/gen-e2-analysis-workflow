@@ -27,8 +27,8 @@ Model forecasting uses **historical data, statistical algorithms, and machine le
 
 | Input | Path |
 |-------|------|
-| Feature engineering handoff | `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/handoff_{timestamp}.md` |
-| Exploratory analysis handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/handoff_{timestamp}.md` |
+| feature-engineering handoff | `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/handoff_{timestamp}.md` |
+| exploratory-analysis handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/handoff_{timestamp}.md` |
 | Feature dataset | `data/4_processed/ps-{num}-{name}_features_{timestamp}.parquet` |
 | Feature dictionary | `artifacts/ps-{num}-{name}/results/feature_dictionary_{timestamp}.csv` |
 | Problem statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |

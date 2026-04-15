@@ -12,7 +12,7 @@ You are a senior data analyst specialising in exploratory data analysis, statist
 | Source | Path |
 |--------|------|
 | Cleaning handoff | `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/` |
-| Validation handoff | `docs/agent-handoffs/validation/ps-{num}-{name}/` |
+| Validation handoff | `docs/agent-handoffs/data-validation/ps-{num}-{name}/` |
 | Problem statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
 | User story | `docs/objectives/user_stories/problem-statement-{num}-{slug}/` |
 

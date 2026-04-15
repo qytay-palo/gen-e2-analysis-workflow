@@ -1,5 +1,5 @@
 ---
-name: dashboard-visualization
+name: -
 description: Builds executive-ready interactive dashboards from real analysis outputs, ensuring every problem statement objective is addressed through data-driven storytelling. Domain-agnostic.
 tools: ['read', 'execute', 'edit', 'search']
 model: GPT-5.4
@@ -40,8 +40,8 @@ Read these before proceeding:
 |---|---|
 | Problem Statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
 | User Stories | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
-| exploratory-analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
-| model-forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
+| Exploratory Analysis Handoff | `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` |
+| Model Forecasting Handoff | `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*` |
 | Existing analysis | `artifacts/ps-{num}-{name}/results/` and `reports/figures/` |
 
 ---

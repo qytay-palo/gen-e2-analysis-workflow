@@ -80,7 +80,7 @@ For each agent, confirm ALL of the following before proceeding:
 | **Data files are non-empty** | Any CSV/Parquet written must have at least 1 data row (not header-only) |
 ---
 
-## Phase 1: Extraction
+## Phase 1: data-extractor
 
 Call `runSubagent` for data-extractor. After completion, immediately call `runSubagent` for code-quality to verify outputs.
 
@@ -92,7 +92,7 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
     3. **Data Dictionary**: `docs/data-dictionary/` (for schema definitions)
     4. **Data Sources**: `docs/project-context/data-sources.md` (for source details)
     5. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` 
-- Expected outputs: `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
+- Expected outputs: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
 **code-quality** (verify extraction):
 - **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
@@ -104,7 +104,7 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Input: handoff JSON path from data-extractor; verify all claimed files exist and are non-empty
 - If FAIL: re-run `data-extractor` with explicit fix instructions before advancing
 
-## Phase 2: Data Validation and Data Cleaning (parallel)
+## Phase 2: data-validation and data-cleaning (parallel)
 
 **TRIGGER NOW**: Call `runSubagent` in parallel for `data-validation` and `data-cleaning`. Wait for it to complete and pass code-quality before advancing to Phase 2b.
 
@@ -112,9 +112,9 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Subagent type: `data-validation`
 - Input:
   1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-  2. **Extractor Handoff**: `docs/agent-handoffs/extraction/ps-{num}-{name}/*`
+  2. **data-extractor Handoff**: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/*`
   3. **Raw Data Files**: `shared/data/1_raw/{domain}/`
-- Expected outputs: `docs/agent-handoffs/validation/ps-{num}-{name}/validation_to_{next_agent}_{timestamp}.json` + jupyter notebooks
+- Expected outputs: `docs/agent-handoffs/data-validation/ps-{num}-{name}/validation_to_{next_agent}_{timestamp}.json` + jupyter notebooks
 
 **data-cleaning**
 
@@ -125,8 +125,8 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Input:
     1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
     2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{name}/` (relevant story)
-    3. **Validation Handoff**: `docs/agent-handoffs/validation/ps-{num}-{name}/*` ← requires Phase 2a output
-    4. **Extractor Handoff**: `docs/agent-handoffs/extraction/ps-{num}-{name}/*`
+    3. **data-validation Handoff**: `docs/agent-handoffs/data-validation/ps-{num}-{name}/*` ← requires Phase 2a output
+    4. **data-extractor Handoff**: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/*`
 - Expected outputs: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/cleaning_to_{next_agent}_{timestamp}.json` + jupyter notebooks and cleaned datasets
 
 **code-quality** (verify cleaning):
@@ -139,27 +139,27 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Input: handoff JSON path from data-cleaning and data-validation; verify all claimed files exist and are non-empty
 - If FAIL: re-run `data-cleaning` and `data-validation` with explicit fix instructions before advancing
 
-## Phase 3: Exploratory Analysis and Feature Engineering (Parallel)
+## Phase 3: exploratory-analysis and feature-engineering (Parallel)
 
 **exploratory-analysis**
 
-**TRIGGER NOW**: Call `runSubagent` in parallel for `exploratory-analysis` and `feature-engineer`. Wait for it to complete and pass code-quality before advancing to Phase 3b.
+**TRIGGER NOW**: Call `runSubagent` in parallel for `exploratory-analysis` and `feature-engineering`. Wait for it to complete and pass code-quality before advancing to Phase 3b.
 
 **exploratory-analysis**:
 - Subagent type: `exploratory-analysis`
 - Input:
   1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-  2. **Cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
-  3. **Validation Handoff**: `docs/agent-handoffs/validation/ps-{num}-{name}/*`
+  2. **data-cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
+  3. **data-validation Handoff**: `docs/agent-handoffs/data-validation/ps-{num}-{name}/*`
   4. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/` (relevant story)
 - Expected outputs: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/exploratory_to_{next_agent}_{timestamp}.json` + jupyter notebooks
 
-**feature-engineer**:
-- Subagent type: `feature-engineer`
+**feature-engineering**:
+- Subagent type: `feature-engineering`
 - Input:
-  1. **EDA Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` ← requires Phase 3a output
-  2. **Cleaning Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
-  3. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-engineer-**.md` (relevant story)
+  1. **exploratory-analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` ← requires Phase 3a output
+  2. **data-cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
+  3. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-engineer*-**.md` (relevant story)
   4. **Domain Knowledge**: `docs/domain-knowledge/` — **read all relevant guides before engineering any features**
 - Expected outputs: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/features_to_{next_agent}_{timestamp}.json` + jupyter notebooks and interim datasets with new features
 
@@ -184,8 +184,8 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
 - Subagent type: `model-forecasting`
 - Input:
     1. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-forecast-**.md`
-    2. **Feature Engineering Handoff**: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/*`
-    3. **Exploratory Analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
+    2. **feature-engineering Handoff**: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/*`
+    3. **exploratory-analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
     4. **Feature dataset**: Check handoff JSON `outputs` array for actual path
     5. **Feature dictionary**: Check handoff JSON for actual path
     6. **Domain knowledge**: `docs/domain-knowledge/`
@@ -209,7 +209,7 @@ all `runSubagent` for narrative-compiler.
 - Input: 
     1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
     2. **Existing Analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
-    3. **Phase 1-4 Hand-offs**: Check all handoff JSONs from Phases 1-4 for actual paths to notebooks, datasets, and results; pass all as input
+    3. **Phase 1-4 Hand-offs**: latest of each `docs/agent-handoffs/*` Check all handoff JSONs from Phases 1-4 for actual paths to notebooks, datasets, and results; pass all as input
 - Expected outputs: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/narrative_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
 # Phase 6: Dashboard Visualization
@@ -221,9 +221,7 @@ all `runSubagent` for narrative-compiler.
 - Input:
     1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
     2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-**-dashboard.md`
-    3. **EDA Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
-    4. **Forecasting Handoff** (if Phase 4 ran): `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/*`
-    5. **Existing analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
+    3. **narrative-compiler Handoff**: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/*`
 - Expected outputs: `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_{next_agent}_{timestamp}.json` + dashboard scripts
 
 **code-quality** (verify dashboard):

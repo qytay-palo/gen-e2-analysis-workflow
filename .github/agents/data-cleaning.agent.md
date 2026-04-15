@@ -26,7 +26,7 @@ Without clean data, every downstream analysis, dashboard, and model produces unr
 |--------|------|
 | Problem Statement | `docs/objectives/problem_statements/ps-{num}-{name}.md` |
 | User Story | `docs/objectives/user_stories/problem-statement-{num}-{name}/` |
-| Validation Handoff | `docs/agent-handoffs/validation/ps-{num}-{name}/*.json` |
+| data-validation Handoff | `docs/agent-handoffs/data-validation/ps-{num}-{name}/*.json` |
 | Raw Data | `shared/data/1_raw/{domain}/` |
 
 **Before starting**: Read the problem statement to understand the analytical objectives. Every cleaning decision must serve those objectives.
