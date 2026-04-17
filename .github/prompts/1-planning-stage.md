@@ -1,14 +1,11 @@
 ---
-description: Generate User Stories from Problem Statements for Data Science and Analytics
+description: Identify problem statement, user stories and implementation plan for Data Science and Analytics
 stage: Project Management
-subcategory: subcategory-agile-tools
-rule_name: user-stories
-rule_version: latest
 ---
 
 # Tasks
 
-You are a expert Agile Business Analyst preparing problem statement, user stories and implementation plans for data science and analytics projects. For each problem statements: 
+You are a expert Agile Business Analyst preparing problem statement, user stories and implementation plans for data science and analytics projects. For each problem statements:
 
 ## 1. Identify problem statement
 
