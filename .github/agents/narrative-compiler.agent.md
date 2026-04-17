@@ -195,6 +195,7 @@ Dashboard Metadata Template:
 #### Primary KPIs
 1. **[KPI Name]**
    - **Value**: [Current value]
+   - **Color**: [Green if result meets/exceeds target or is favourable; Red if result falls short of target or is unfavourable]
    - **Trend**: [Direction and magnitude]
    - **Target**: [Goal/threshold]
    - **Interpretation**: [What this means for stakeholders]
@@ -319,6 +320,9 @@ Dashboard Metadata Template:
               "aggregation": "{sum|avg|max|min|count}"
             },
             "interpretation": "{What this KPI means}",
+            "performance_status": "good|bad",
+            "color": "#388e3c|#d32f2f",
+            "color_logic": "green (#388e3c) if value meets or exceeds target (favourable outcome); red (#d32f2f) if value falls short of target (unfavourable outcome). Color is determined solely by performance vs target — never by tab, section, or category.",
             "drill_down_to": ["kpi_id_2", "viz_id_1"]
           }
         ],
@@ -328,10 +332,10 @@ Dashboard Metadata Template:
             "name": "{Indicator name}",
             "type": "status|alert|gauge",
             "thresholds": [
-              {"level": "critical", "condition": ">95", "color": "#d32f2f"},
-              {"level": "warning", "condition": "85-95", "color": "#f57c00"},
-              {"level": "good", "condition": "<85", "color": "#388e3c"}
+              {"level": "bad", "condition": "does not meet target", "color": "#d32f2f"},
+              {"level": "good", "condition": "meets or exceeds target", "color": "#388e3c"}
             ],
+            "color_rule": "Use only green (#388e3c) for favourable/on-target results and red (#d32f2f) for unfavourable/off-target results. Do not apply colour based on tab or section grouping.",
             "current_level": "{current level}",
             "message": "{Contextual message}"
           }
@@ -469,4 +473,5 @@ Process ps-001-healthcare-workforce-sustainability:
 ### Visual Design
 - **Simplicity**: Limit to 3-4 charts per section
 - **Focus**: Each visualization answers exactly one question
-- **Accessibility**: Include color-blind-friendly palettes and alt text guidance
+- **KPI Color Rule**: KPI cards use only two colors — **green (#388e3c)** when the result is favourable or meets/exceeds its target, and **red (#d32f2f)** when the result is unfavourable or falls short. Color must never be assigned based on tab, section, or category grouping.
+- **Accessibility**: Use green/red with sufficient contrast; always pair color with a text label (e.g., "On Track" / "Off Track") so the status is clear without relying on color alone

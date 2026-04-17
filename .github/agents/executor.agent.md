@@ -212,7 +212,7 @@ all `runSubagent` for narrative-compiler.
     3. **Phase 1-4 Hand-offs**: latest of each `docs/agent-handoffs/*` Check all handoff JSONs from Phases 1-4 for actual paths to notebooks, datasets, and results; pass all as input
 - Expected outputs: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/narrative_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
-# Phase 6: Dashboard Visualization
+# Phase 6: dashboard-visualization
 
 **TRIGGER NOW**: Call `runSubagent` for `dashboard-visualization`.
 
