@@ -46,18 +46,14 @@ Ask the following questions before proceeding:
 
 1. **Update Project Folder Structure**:
 
-**Hybrid Approach:** This structure supports multiple problem statements with shared infrastructure and self-contained analyses.
+**Hybrid Approach:** This structure supports multiple problem statements with optional shared infrastructure and self-contained analyses.
 
 Below is the base folder structure:
 ```
 .
-├── .env.example      # [PHASE 0] Template for environment variables (DB credentials, API keys)
 ├── .gitignore        # [PHASE 0] Files to exclude from version control
 ├── README.md         # [PHASE 0] Project overview and setup instructions
-├── requirements.txt  # [PHASE 0] Python dependencies (base shared dependencies)
-├── environment.yml   # [PHASE 0] Conda environment (optional)
-├── shared/           # [PHASE 2-10] SHARED INFRASTRUCTURE
-│   ├── README.md     #   Shared files 
+├── shared/           # [OPTIONAL] Shared infrastructure created only when justified
 │   ├── src/          # → Reusable production code (library functions)
 │   │   ├── __init__.py
 │   │   ├── utils/           # → Helper functions, config loaders, loggers
@@ -77,13 +73,11 @@ Below is the base folder structure:
 │   │   ├── procedures/    # → Stored procedures
 │   │   └── extractions/   # → Data extraction queries
 │   │
-│   ├── tests/        # → Tests for shared code
+│   ├── tests/        # → Tests for shared code when shared modules exist
 │   │   ├── unit/          # → Unit tests for shared functions
 │   │   └── fixtures/      # → Test data and fixtures
 │   │
-│   └── config/       # → Shared configuration files
-│       ├── base.yml       # → Base configuration settings
-│       └── databricks.yml # → Platform-specific settings
+│   └── config/       # → Shared configuration files when needed
 ├── artifacts/  # [PHASE 3-10] SELF-CONTAINED ANALYSES
 │   ├── ps-001-{problem-name}/  # 📦 Complete analysis package for Problem Statement 1
 │   │   ├── README.md           # → Problem overview, objectives, workflows
@@ -132,22 +126,22 @@ Below is the base folder structure:
 ```
 
 **Key Principles:**
-1. **Shared Resources** (`shared/`): Reusable code, raw data, SQL queries - write once, use everywhere
+1. **Shared Resources** (`shared/`): Optional reusable code, raw data, and SQL queries created only when cross-problem reuse is justified
 2. **Problem-Specific** (`artifacts/ps-{num}-{name}/`): Self-contained analyses with all outputs
-3. **Import Pattern**: Problem-specific code imports from `shared/src/` for maximum reusability
-4. **Data Strategy**: Raw data in `shared/data/1_raw/` (single source), processed data in problem folders
+3. **Import Pattern**: Problem-specific code may import from `shared/src/` only if a real shared layer has been created
+4. **Data Strategy**: Keep reusable raw data in `shared/data/1_raw/` when that layer exists, and store processed/problem-specific outputs under `artifacts/`
 5. **Isolation**: Each problem statement can be archived/shared as a complete package
 
 **Actions:**
    - Update the project structure based on the answers to the initial questions
    - Update README.md file with project overview and hybrid structure explanation
    - Update docs/index.md to reflect the new structure and provide navigation
-   - Create necessary configuration files in `shared/config/` and problem-specific `config/` directories
-   - Document the technical environment and platform specifics in `docs/project_context/tech-stack.md`
+   - Create only the configuration files that are justified by the chosen implementation paths
+   - Document the technical environment and platform specifics in `docs/project-context/tech-stack.md`
 
 2. **Technical Stack Reference**
    - **Preferred Technologies**: 
-      - Consult `docs/project_context/tech-stack.md` for approved platforms and tools
+      - Consult `docs/project-context/tech-stack.md` for approved platforms and tools
 
    - **Technology Selection Criteria**:
       1. **Default**: Use technologies from the approved tech stack when they meet project requirements
@@ -167,7 +161,7 @@ Below is the base folder structure:
          - Use Polars for ETL pipelines, data transformations, and feature engineering
 
 3. **Data Dictionary Creation**:
-   - Compile a comprehensive data dictionary in `docs/data_dictionary/` that details all datasets, including:
+   - Compile a comprehensive data dictionary in `docs/data-dictionary/` that details all datasets, including:
      - Field definitions, data types, and value ranges
      - Data quality notes and known limitations
      - Lineage tracking (source system → transformations → final table)
@@ -178,43 +172,52 @@ Below is the base folder structure:
    - Ensure the data dictionary is easily navigable and linked from the main documentation index (docs/index.md)
 
 4. **Data Connection Scripts**:
-   - Create connection scripts in `shared/src/data_processing/` for external data sources (e.g., Kaggle, AWS S3, Azure Blob Storage, APIs). Each script should include authentication handling, connection setup, error handling, and logging.
-   - Check if there is alternative credential-free methods exist before implementing the credential-requiring approach. Use environment variables from `.env` for credentials and API keys. 
-   - Include retry logic for network failures and implement rate limiting for API calls. Document connection parameters and authentication methods in comments. Add connection testing functions to validate credentials before data extraction. Consider creating a base connection class that other connectors can inherit from for consistency.
-   - Run the extraction scripts to download data from external sources and place the extracted files in `shared/data/1_raw/` folder. Ensure raw data files remain immutable and are never modified in place. Log all extraction activities including timestamps, file sizes, and data quality checks.
+     - If reusable connectors are warranted, create them under `shared/src/data_processing/`; otherwise keep them under the relevant `artifacts/ps-{num}-{name}/src/` tree. Each script should include authentication handling, connection setup, error handling, and logging.
+    - Check if there is alternative credential-free methods exist before implementing the credential-requiring approach. Use environment variables from `.env` for credentials and API keys. 
+    - Include retry logic for network failures and implement rate limiting for API calls. Document connection parameters and authentication methods in comments. Add connection testing functions to validate credentials before data extraction. Consider creating a base connection class that other connectors can inherit from for consistency.
+    - Run the extraction scripts to download data from external sources and place the extracted files in `shared/data/1_raw/` folder. Ensure raw data files remain immutable and are never modified in place. Log all extraction activities including timestamps, file sizes, and data quality checks.
 
-5. **Create TODO.md**:
-   - Create the `TODO.md` file and split it in a way that makes sense for this project.
-   - Format:
-     ```
-     ## Domain
-     [ ] Task to be done (owner)
-     ```
-   - Add tasks for each area of the project, like front-end, back-end, infra, etc.
-   - Ensure tasks are detailed and small enough to be done in a few hours.
-   - Include tasks outside of development, like DevOps tasks, security tasks, etc.
-   - Add lines regarding reviewing all generated files (like Architecture or API doc) and updating them as needed.
+ 5. **Create TODO.md**:
+    - Create a root `TODO.md` file for lightweight project tracking.
+    - Keep it focused on:
+      - repo-level setup and documentation tasks
+      - per-problem-statement progress
+      - blockers and follow-ups
+    - Use a simple checklist format, for example:
+      ```md
+      # TODO
 
-6. **Documentation**:
-   - If the project is API-First or has an API, suggest a swagger file `docs/apidoc.yaml` .
+      ## Repo
+      - [ ] Confirm setup and documentation
 
-7. **Tools and Dependencies**:
-   - Suggest tools that could be useful for this project, like a specific database, etc.
-   - Create all necessary files for the project, like the .gitignore, the .gitattributes, etc.
-   - Depending on the selected language, create the necessary files for it (like a requirements.txt for python).
-   - If a virtual environment is needed, suggest it and create it. Load all dependencies needed for the project.
+      ## Problem Statements
+      - [ ] PS-001 ...
 
-8. **Version Control**:
-   - Ensure to initialize a Git repository and create an initial commit.
+      ## Blockers
+      - [ ] ...
+      ```
+    - Do not duplicate detailed implementation plans already stored in user story files.
 
-9. **Testing**:
-   - Set up testing frameworks and write initial test cases.
+  6. **Documentation**:
+     - If the project is API-First or has an API, suggest a swagger file `docs/apidoc.yaml` .
 
-10. **Environment Configuration**:
-   - Provide guidelines for handling environment variables and secrets (e.g., using .env files).
+  7. **Tools and Dependencies**:
+    - Suggest tools that could be useful for this project, like a specific database, etc.
+    - Create all necessary files for the project, like the .gitignore, the .gitattributes, etc.
+    - Depending on the selected language, create the necessary files for it (like a requirements.txt for python).
+    - If a virtual environment is needed, suggest it and create it. Load all dependencies needed for the project.
 
-11. **Code Quality**:
-   - Suggest tools for code quality checks, such as linters and formatters.
+  8. **Version Control**:
+    - Ensure to initialize a Git repository and create an initial commit.
+
+  9. **Testing**:
+    - Set up testing frameworks and write initial test cases.
+
+  10. **Environment Configuration**:
+    - Provide guidelines for handling environment variables and secrets (e.g., using .env files).
+
+  11. **Code Quality**:
+    - Suggest tools for code quality checks, such as linters and formatters.
 
 ---
 

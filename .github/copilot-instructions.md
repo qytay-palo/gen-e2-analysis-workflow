@@ -98,7 +98,7 @@ Use for fetching **current documentation** instead of relying on training data:
 - Generate figures to `reports/figures/` in PNG/PDF for presentations
 
 ## Databricks Integration
-- Cluster config in `config/databricks.yml` specifies runtime 13.3.x (Python 3.9)
+- Document Databricks runtime and workspace requirements in `docs/project-context/tech-stack.md`
 - Workspace paths: `/Workspace/Users/moh-analytics/`
 - Data storage: `/dbfs/mnt/moh-data/`
 - Use `databricks-connect` for local development with remote Spark clusters
