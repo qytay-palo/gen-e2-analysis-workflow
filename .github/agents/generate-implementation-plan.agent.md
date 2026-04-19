@@ -86,10 +86,10 @@ List all files with `[CREATE]`, `[MODIFY]`, `[DELETE]` indicators. For each:
 
 **Format:**
 ```
-- **[CREATE] `shared/src/data_processing/extractor.py`** (if reusable across problems)
+- **[CREATE] `shared/src/data_processing/extractor.py`** (only if reusable across problems and a shared layer is being created)
   - Function: `extract_disease_data(start_date: str, end_date: str, diseases: list[str]) -> pl.DataFrame`
   - Dependencies: `polars`, `yaml`, `loguru`, `src.utils.config_loader`
-  - Config: `shared/config/base.yml`
+  - Config: `artifacts/ps-{num}-{name}/config/config.yml` or a shared config only if that layer exists
   - Logging: `logs/etl/extraction_{timestamp}.log`
 
 - **[CREATE] `artifacts/ps-{num}-{name}/src/{name}_utils.py`** (if problem-specific)
@@ -118,7 +118,7 @@ For MODIFIED components:
 
 ### 5. Data Pipeline [CRITICAL]
 
-**Grounding Requirement**: Base pipeline on data sources in [docs/project_context/data-sources.md](../../../docs/project_context/data-sources.md) and tech stack in [docs/project_context/tech-stack.md](../../../docs/project_context/tech-stack.md).
+**Grounding Requirement**: Base pipeline on data sources in [docs/project-context/data-sources.md](../../../docs/project-context/data-sources.md) and tech stack in [docs/project-context/tech-stack.md](../../../docs/project-context/tech-stack.md).
 
 **Pre-Implementation Validation**:
 - Check for existing datasets in `data/` directories that can be reused
@@ -347,11 +347,11 @@ uv pip freeze > requirements.txt
 **Three-Step Validation Process**:
 
 **Step 1: Identify Relevant Domain Knowledge**
-- Review `docs/domain_knowledge/` for applicable documents
+- Review `docs/domain-knowledge/` for applicable documents
 - List key concepts, metrics, formulas relevant to this problem
 
 **Step 2: Validate Data Availability**
-- Cross-reference domain features against [data-sources.md](../../../docs/project_context/data-sources.md)
+- Cross-reference domain features against [data-sources.md](../../../docs/project-context/data-sources.md)
 - Verify field existence, completeness, quality, granularity
 - **Explicitly reject** features not computable from available data
 - Document data gaps
@@ -582,19 +582,19 @@ Each phase can be completed independently
 Generate code in this sequence to ensure dependencies exist:
 
 **Phase 1: Foundation**
-1. Configuration files (`shared/config/base.yml` for shared settings, `artifacts/ps-{num}-{name}/config/config.yml` for problem-specific)
-2. Data schemas (Pydantic/dataclasses in `shared/src/utils/schemas.py`)
-3. Utility modules (in `shared/src/utils/`: `logger.py`, `config_loader.py`, validators)
-4. Test fixtures (`shared/tests/conftest.py` for shared fixtures, `artifacts/ps-{num}-{name}/tests/conftest.py` for problem-specific)
+1. Configuration files (`artifacts/ps-{num}-{name}/config/config.yml` by default; add shared config only if that layer exists)
+2. Data schemas (Pydantic/dataclasses in the problem-specific `src/` tree by default, or in `shared/src/utils/schemas.py` only if shared reuse is justified)
+3. Utility modules (in `artifacts/ps-{num}-{name}/src/` by default, or `shared/src/utils/` only if shared reuse is justified)
+4. Test fixtures (`artifacts/ps-{num}-{name}/tests/conftest.py` by default, with shared fixtures only if shared tests actually exist)
 
 **Phase 2: Core Logic** (Determine if shared or problem-specific)
-5. Data extraction (`shared/src/data_processing/extractors/` if reusable, else `artifacts/ps-{num}-{name}/src/`)
-6. Data cleaning and string normalization (`shared/src/data_processing/cleaning.py` for common logic - see [Reference Guide](./implementation-plan-reference-guide.md#section-635-string-normalization-patterns) for string standardization patterns)
-7. Feature engineering (`shared/src/analysis/` or `artifacts/ps-{num}-{name}/src/` depending on reusability)
-8. Analysis modules (`shared/src/analysis/` for general methods, `artifacts/ps-{num}-{name}/src/` for custom)
+5. Data extraction (`artifacts/ps-{num}-{name}/src/` by default; use `shared/src/data_processing/extractors/` only for clear reuse)
+6. Data cleaning and string normalization (`artifacts/ps-{num}-{name}/src/` by default; use shared cleaning modules only when they already exist or are justified)
+7. Feature engineering (`artifacts/ps-{num}-{name}/src/` by default, or `shared/src/analysis/` only for reused methods)
+8. Analysis modules (`artifacts/ps-{num}-{name}/src/` for problem-specific logic, or shared modules only for reused methods)
 
 **Phase 3: Integration** (Problem-specific)
-9. Unit tests (`shared/tests/unit/` for shared code, `artifacts/ps-{num}-{name}/tests/` for problem-specific)
+9. Unit tests (`artifacts/ps-{num}-{name}/tests/` by default, with optional shared test directories only when a real shared layer exists)
 10. Integration tests (`artifacts/ps-{num}-{name}/tests/integration/`)
 11. Pipeline orchestration (`artifacts/ps-{num}-{name}/scripts/run_pipeline.py`)
 12. Notebooks (`artifacts/ps-{num}-{name}/notebooks/{{user-story_num}-{name}.ipynb/`)
@@ -881,7 +881,7 @@ Plan is ready for code generation ONLY if it includes:
 ## Quality Criteria
 
 **Functional Requirements**:
-- Based on [data-sources.md](../../../docs/project_context/data-sources.md) and existing conventions
+- Based on [data-sources.md](../../../docs/project-context/data-sources.md) and existing conventions
 - Prioritize reuse over new components
 - Concrete file paths, names, schemas
 - Clear enough for implementation without ambiguity

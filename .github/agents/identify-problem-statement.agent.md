@@ -31,15 +31,15 @@ Each problem statement represents a complete analytical initiative from data ext
 
 Read and synthesize information from:
 
-1. **Business Context** ([README.md](../../../README.md) and [docs/project_context/business-objectives.md](../../../docs/project_context/business-objectives.md))
+1. **Business Context** ([README.md](../../../README.md) and [docs/project-context/business-objectives.md](../../../docs/project-context/business-objectives.md))
    - Extract: Project objectives, stakeholder needs, business context, success criteria
    - Identify: Strategic priorities, constraints, organizational goals, decision-making needs
 
-2. **Data Sources** ([docs/project_context/data_sources.md](../../../docs/project_context/data_sources.md))
+2. **Data Sources** ([docs/project-context/data-sources.md](../../../docs/project-context/data-sources.md))
    - Extract: Available datasets, data granularity, update frequency, data quality
    - Identify: Data gaps, integration opportunities, untapped data assets
 
-3. **Technical Stack** ([docs/project_context/tech_stack.md](../../../docs/project_context/tech_stack.md))
+3. **Technical Stack** ([docs/project-context/tech-stack.md](../../../docs/project-context/tech-stack.md))
    - Extract: Available tools, platforms, technical capabilities, constraints
    - Identify: Analytical methods enabled by tech stack, technical limitations, compute environment (Databricks, CDSW, local), primary languages (Python, R, SQL, STATA), analytics engines (Spark, local Polars), and platform constraints (batch vs real-time, distributed vs local)
 
@@ -57,7 +57,7 @@ Read and synthesize information from:
 
 **Purpose**: Understand general data capabilities and limitations to avoid proposing impossible analyses. This is a high-level assessment, not detailed technical inventory.
 
-Review [docs/project_context/data_sources.md](../../../docs/project_context/data_sources.md) to answer:
+Review [docs/project-context/data-sources.md](../../../docs/project-context/data-sources.md) to answer:
 
 **1. Data Domains Available**:
 - What general categories of data exist?
@@ -292,7 +292,7 @@ When ideal data is NOT available, consider:
 - Brief description of the type of analysis needed (exploratory, predictive, comparative, etc.)
 - Note: The development team will determine specific methods and techniques during sprint planning
 
-**Platform Feasibility**: (Reference [tech_stack.md](../../../docs/project_context/tech_stack.md))
+**Platform Feasibility**: (Reference [tech-stack.md](../../../docs/project-context/tech-stack.md))
 - **Primary Platform**: Which platform from tech stack will be used? 
 - **Language**: Primary language(s) for this Problem Statement? (Python, R, SQL, Scala)
 - **Compute Requirements**: Local compute sufficient or distributed processing needed?
@@ -472,7 +472,7 @@ Before finalizing each problem statement, verify:
 - [ ] If data gaps exist, problem statement are reformulated
 
 **Platform & Technical Feasibility**:
-- [ ] **Primary platform identified** (../../docs/project_context/tech_stack.md)
+- [ ] **Primary platform identified** (../../docs/project-context/tech-stack.md)
 - [ ] **All required technical capabilities exist in tech_stack.md**
 
 - [ ] If tech gaps exist, flagged as blockers with workarounds identified

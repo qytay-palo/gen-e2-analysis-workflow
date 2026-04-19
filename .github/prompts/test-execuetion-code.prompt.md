@@ -10,11 +10,11 @@ Conduct comprehensive testing to ensure all code blocks execute consecutively wi
 
 This project uses a **hybrid folder structure**:
 
-- **Shared Code**: `shared/src/` - Reusable library functions
-- **Problem-Specific Code**: `problem-statement/ps-{num}/` - Self-contained analysis packages
-  - Notebooks: `problem-statement/ps-{num}/notebooks/`
-  - Scripts: `problem-statement/ps-{num}/scripts/`
-  - Tests: `problem-statement/ps-{num}/tests/`
+- **Shared Code**: `shared/src/` - Optional reusable library functions when a shared layer exists
+- **Problem-Specific Code**: `artifacts/ps-{num}-{name}/` - Self-contained analysis packages
+  - Notebooks: `artifacts/ps-{num}-{name}/notebooks/`
+  - Scripts: `artifacts/ps-{num}-{name}/scripts/`
+  - Tests: `artifacts/ps-{num}-{name}/tests/`
 
 **Import Pattern to Verify:**
 ```python

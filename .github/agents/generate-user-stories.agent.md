@@ -35,13 +35,13 @@ You have access to the following project documentation files:
       - Each problem statement's scope, objectives, and expected outcomes
       - Stakeholders and their needs
       - Business priorities and success criteria
-   - Review `docs/project_context/` folder for additional context on:
+   - Review `docs/project-context/` folder for additional context on:
      - Available data sources and their characteristics
      - Technical stack and platform constraints
      - Other project background that may influence story design
-   - Review `docs/data_dictionary/` for data field definitions and structures
+   - Review `docs/data-dictionary/` for data field definitions and structures
 
-**CRITICAL CONSTRAINT**: All problem statements must be **grounded in available data sources** documented in [docs/project_context/data_sources.md](../../../docs/project_context/data_sources.md) and **feasible with the current tech stack** documented in [docs/project_context/tech_stack.md](../../../docs/project_context/tech_stack.md). Do not propose problems that require unavailable data or exceed technical capabilities.
+**CRITICAL CONSTRAINT**: All problem statements must be **grounded in available data sources** documented in [docs/project-context/data-sources.md](../../../docs/project-context/data-sources.md) and **feasible with the current tech stack** documented in [docs/project-context/tech-stack.md](../../../docs/project-context/tech-stack.md). Do not propose problems that require unavailable data or exceed technical capabilities.
 
 #### Expected Problem Statement Format
 
@@ -81,7 +81,7 @@ For each stakeholder group and problem statement, identify relevant domain knowl
 #### c. Check Existing Domain Knowledge Files
 
 Search the `/docs` directory structure for existing domain knowledge documentation:
-- Look in `docs/domain_knowledge/` (create if doesn't exist)
+- Look in `docs/domain-knowledge/` (create if it doesn't exist)
 - Search for files matching patterns:
   - `stakeholder-{role}-expertise.md`
   - `{domain}-terminology-glossary.md`
@@ -147,7 +147,7 @@ Use clear, descriptive names that enable easy identification of content:
 
 #### f. File Content Structure for Domain Knowledge
 
-Store all domain knowledge files in `docs/domain_knowledge/` directory. Each file should follow this structure:
+Store all domain knowledge files in `docs/domain-knowledge/` directory. Each file should follow this structure:
 
 ```markdown
 # Domain Knowledge: {Descriptive Title}
@@ -262,7 +262,7 @@ Brief description of the domain area covered, its relevance to the project, and 
 - [{File Name}]({relative-path}) - {How it relates}
 
 ### Related Data Dictionary Entries
-- [{Data Source}](../data_dictionary/{file}.md) - {Relevant fields}
+- [{Data Source}](../data-dictionary/{file}.md) - {Relevant fields}
 
 ## Metadata
 
@@ -429,7 +429,7 @@ Each markdown file should contain *one* user story following this format:
 
 ## 3. 📚 Domain Knowledge References
 
-*   [Link to relevant domain knowledge files in docs/domain_knowledge/]
+*   [Link to relevant domain knowledge files in docs/domain-knowledge/]
 *   [Specific metrics, KPIs, or features to leverage]
 *   [Domain-specific considerations for this story]
 
@@ -573,7 +573,7 @@ This section outlines detailed formatting guidelines for writing user stories in
     **so that** I can assess data completeness and establish a reliable foundation for analysis.
     
     *   Acceptance Criteria:
-        *   Data extraction includes visit counts by age group from all polyclinics (per [`docs/data_dictionary/`](docs/data_dictionary/))
+        *   Data extraction includes visit counts by age group from all polyclinics (per [`docs/data-dictionary/`](docs/data-dictionary/))
         *   Analysis covers minimum 3 years of historical data
         *   Data quality report documents completeness, missing values, and outliers
         *   Age group classifications are validated against MOH standards
@@ -620,7 +620,7 @@ This section outlines detailed formatting guidelines for writing user stories in
         *   Seasonal decomposition performed (trend, seasonal, residual components)
         *   Peak and trough periods identified with confidence intervals
         *   Seasonal indices calculated for each age group
-        *   Domain knowledge from [`docs/domain_knowledge/`](docs/domain_knowledge/) applied for feature validation
+        *   Domain knowledge from [`docs/domain-knowledge/`](docs/domain-knowledge/) applied for feature validation
 
 5.  **User Story 5 - Demand Forecasting Model Development**
     
