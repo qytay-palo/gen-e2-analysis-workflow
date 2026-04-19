@@ -208,13 +208,8 @@ __marimo__/
 
 
 #working files
-/problem-statements
-/user-stories
-/problem-statement
-/shared
-.problem-statements/
-.user-stories/
-problem-statement/
-.shared/
-shared/
-docs/agent-handoffs/
+# Keep only the placeholder files tracked; ignore all other top-level contents.
+/artifacts/*
+!/artifacts/.gitkeep
+/shared/*
+!/shared/.gitkeep
