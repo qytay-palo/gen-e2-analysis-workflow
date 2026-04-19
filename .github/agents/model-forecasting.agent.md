@@ -631,7 +631,7 @@ uv pip install xgboost shap prophet statsmodels ruptures scikit-learn joblib log
 
 ### Update README
 
-After saving outputs, update the `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` to reflect the current state of the folder.
+After saving outputs, update `artifacts/ps-{num}-{name}/README.md` to reflect the current state of the folder. Document shared-layer details only if you created real shared assets during execution.
 
 1. Add a `## Folder Structure` section with the current directory layout and purpose of each folder
 2. Add a `## How to Run` section with concise instructions to reproduce the cleaning

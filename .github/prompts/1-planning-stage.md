@@ -15,7 +15,7 @@ run identify-problem-statement subagent to identify and prioritize actionable an
 
 run generate-user-stories subagent in parallel for all problem statements if there are multiple problem statements, details can be found in [../agents/generate-user-stories] to generate user stories for each user story. 
 
-Validate and ensure that each user stories is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is found in the respective folders under `docs/objectives/user_stories/problem-statement-{num}-{name}/<numerical_prefix>-<story_name>.md`. Each user story should represent a distinct piece of functionality or value from an end-user perspective, following best practices in user story design and the data analysis lifecycle.
+Validate and ensure that each user stories is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is found in the respective folders under `docs/objectives/user_stories/problem-statement-{num}-{name}/<numerical_prefix>-<story_name>.md`. Each user story should represent a distinct piece of functionality or value from an end-user perspective, following best practices in user story design and the data analysis lifecycle. Preserve the existing `problem-statement-{num}-{name}` folder naming convention for user story directories.
 
 ## 3. Generate Implementation Plan for User Stories
 

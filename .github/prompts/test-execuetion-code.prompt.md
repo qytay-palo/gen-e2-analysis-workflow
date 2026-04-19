@@ -25,7 +25,7 @@ sys.path.append(str(Path('../../../../shared').resolve()))
 from src.data_processing import loaders  # From shared/src/
 ```
 
-**Reference**: See [FOLDER-STRUCTURE-REFERENCE.md](./FOLDER-STRUCTURE-REFERENCE.md) for complete path mappings.
+**Reference**: Verify paths against the current repo structure before testing.
 
 ---
 

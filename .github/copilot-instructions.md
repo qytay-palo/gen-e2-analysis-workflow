@@ -40,9 +40,9 @@ Use for ALL file operations:
 
 ```
 Read data:     "Use filesystem tools to read shared/data/1_raw/input.csv"
-Create dir:    "Use filesystem tools to create directory problem-statement/ps-001-{name}/results/"
-Write file:    "Use filesystem tools to save results to problem-statement/ps-001-{name}/results/tables/output.csv"
-List files:    "Use filesystem tools to list files in problem-statement/ps-001-{name}/"
+Create dir:    "Use filesystem tools to create directory artifacts/ps-001-{name}/results/"
+Write file:    "Use filesystem tools to save results to artifacts/ps-001-{name}/results/tables/output.csv"
+List files:    "Use filesystem tools to list files in artifacts/ps-001-{name}/"
 ```
 
 ### Context7 MCP (REQUIRED for Library/Framework Usage)
@@ -114,10 +114,8 @@ Use for fetching **current documentation** instead of relying on training data:
 
 ## Quick Reference: Key Files
 
-- [TODO.md](TODO.md): Project task breakdown with ownership and status
-- [docs/project_context/](docs/project_context/): Project objectives and data source details
-- [.github/instructions/](.github/instructions/): Coding standards (refer to these for detailed conventions) and best practices
+- [docs/project-context/](docs/project-context/): Project objectives and data source details
 - [.github/agents/](.github/agents/): Agent capabilities and mappings
 
 ## Agents
-- Reference the [AGENTS.md](../.github/agents/AGENTS.md) document for complete guidelines for dead code elimination, code refactoring, and code review best practices.
+- Review the relevant agent specs in `.github/agents/` for workflow-specific guidance.

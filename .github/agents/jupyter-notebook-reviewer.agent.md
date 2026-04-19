@@ -12,7 +12,7 @@ model: GPT-5.4
 - **MISSION**: Zero cell execution errors across all notebooks
 
 # Instructions:
-1. Read the complete testing protocol from .github/prompts/6-test-execuetion-code.prompt.md
+1. Read the complete testing protocol from `.github/prompts/test-execuetion-code.prompt.md`
 2. Follow ALL phases in the "Testing Protocol" section:
    - Phase 1: Discovery (find all notebooks)
    - Phase 2: Pre-Execution Validation (imports, dependencies, environment)
@@ -40,4 +40,4 @@ If ANY notebook cannot be fixed to execute successfully:
 3. Block further implementation
 4. Escalate to primary agent
 
-Reference: See .github/prompts/5-test-execuetion-code.prompt.md for complete testing protocol and error resolution strategies.`
+Reference: See `.github/prompts/test-execuetion-code.prompt.md` for complete testing protocol and error resolution strategies.
