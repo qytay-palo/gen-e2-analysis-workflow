@@ -56,7 +56,7 @@ Sets up the project folder structure, virtual environment, and base configuratio
 /0-start-gen-e2-data-analysis-project
 ```
 
-**Outputs**: Folder structure, `.env.example`, `requirements.txt`, `README.md` updates.
+**Outputs**: Folder structure guidance, lightweight project tracking (`TODO.md`), and documentation updates aligned to the selected implementation paths.
 
 ---
 
@@ -131,10 +131,10 @@ After the executor finishes, check:
 ls docs/agent-handoffs/*/ps-001-healthcare-workforce-sustainability/
 
 # Confirm notebooks are non-empty
-du -sh problem-statement/ps-001-healthcare-workforce-sustainability/notebooks/*.ipynb
+du -sh artifacts/ps-001-healthcare-workforce-sustainability/notebooks/*.ipynb
 
 # Confirm processed data exists
-ls problem-statement/ps-001-healthcare-workforce-sustainability/data/4_processed/
+ls artifacts/ps-001-healthcare-workforce-sustainability/data/4_processed/
 ```
 
 ---
@@ -156,8 +156,8 @@ ls problem-statement/ps-001-healthcare-workforce-sustainability/data/4_processed
 │   ├── agent-handoffs/          # Phase-to-phase communication JSONs
 │   └── domain-knowledge/        # Healthcare metrics, forecasting guides
 ├── shared/
-│   └── data/1_raw/              # Raw downloaded datasets
-└── problem-statement/
+│   └── data/1_raw/              # Shared raw datasets when a shared layer exists
+└── artifacts/
     └── ps-{num}-{name}/         # All artifacts for a given problem statement
         ├── notebooks/
         ├── src/

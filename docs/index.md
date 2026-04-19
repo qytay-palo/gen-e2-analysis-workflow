@@ -10,15 +10,15 @@ Welcome to the Gen-E2 documentation. This page serves as the central navigation 
 
 ### New to the Project?
 1. **[README](../README.md)** - Project overview and setup instructions
-2. **[Business Objectives](project_context/business-objectives.md)** - Understand the "why"
-3. **[Tech Stack](project_context/tech-stack.md)** - Technology platform and tools
+2. **[Business Objectives](project-context/business-objectives.md)** - Understand the "why"
+3. **[Tech Stack](project-context/tech-stack.md)** - Technology platform and tools
 4. **[TODO Task Tracker](../TODO.md)** - Current tasks and progress
 
 ### Starting a New Analysis?
 1. Review existing **[Problem Statements](objectives/problem_statements/)**
-2. Check **[Data Dictionary](data_dictionary/index.md)** for available datasets
-3. Follow **[Data Analysis Best Practices](../.github/instructions/data-analysis-best-practices.instructions.md)**
-4. Use hybrid structure: `problem-statements/ps-{num}-{name}/`
+2. Check **[Data Dictionary](data-dictionary/index.md)** for available datasets
+3. Follow **[Copilot Instructions](../.github/copilot-instructions.md)**
+4. Use hybrid structure: `artifacts/ps-{num}-{name}/`
 
 ---
 
@@ -30,9 +30,9 @@ Welcome to the Gen-E2 documentation. This page serves as the central navigation 
 
 | Document | Description |
 |----------|-------------|
-| [Business Objectives](project_context/business-objectives.md) | MOH strategic goals and KPIs |
-| [Data Sources](project_context/data-sources.md) | Available datasets and acquisition methods |
-| [Tech Stack](project_context/tech-stack.md) | HEALIX/Databricks platform specifications |
+| [Business Objectives](project-context/business-objectives.md) | MOH strategic goals and KPIs |
+| [Data Sources](project-context/data-sources.md) | Available datasets and acquisition methods |
+| [Tech Stack](project-context/tech-stack.md) | HEALIX/Databricks platform specifications |
 
 **Stakeholder Requirements**
 - **Policy Makers**: Evidence for health policy formulation
@@ -58,7 +58,7 @@ Grouped by problem statement for traceability.
 
 **How to Add New Problems**:
 1. Create: `docs/objectives/problem_statements/ps-{num}-{slug}.md`
-2. Follow template from [Data Analysis Best Practices](../.github/instructions/data-analysis-best-practices.instructions.md)
+2. Follow template from [Copilot Instructions](../.github/copilot-instructions.md)
 3. Update this index with link
 
 ---
@@ -67,14 +67,14 @@ Grouped by problem statement for traceability.
 
 **Master Data Reference**
 
-📁 **[Data Dictionary Index](data_dictionary/index.md)** - Complete data documentation hub
+📁 **[Data Dictionary Index](data-dictionary/index.md)** - Complete data documentation hub
 
 **Core Datasets**:
 | Dataset | Description | Location |
 |---------|-------------|----------|
-| [Disease Data](data_dictionary/disease_data.md) | Disease surveillance & epidemiological data | `shared/data/1_raw/disease_surveillance/` |
-| [Workforce Features](data_dictionary/workforce-forecast-features.md) | Healthcare workforce planning data | `shared/data/1_raw/workforce/` |
-| [External Reference](data_dictionary/external_reference.md) | Demographics, benchmarks, reference data | `shared/data/2_external/` |
+| [Disease Data](data-dictionary/disease_data.md) | Disease surveillance & epidemiological data | `shared/data/1_raw/disease_surveillance/` |
+| [Workforce Features](data-dictionary/workforce-forecast-features.md) | Healthcare workforce planning data | `shared/data/1_raw/workforce/` |
+| [External Reference](data-dictionary/external_reference.md) | Demographics, benchmarks, reference data | `shared/data/2_external/` |
 
 **Data Standards**:
 - Dates: `YYYY-MM-DD` format, `Date` type (Polars)
@@ -99,13 +99,12 @@ Grouped by problem statement for traceability.
 
 ### 5️⃣ Development Guidelines
 
-**Coding Standards & Best Practices**
+**Core Workflow References**
 
 | Guideline | Purpose |
 |-----------|---------|
-| [Python Best Practices](../.github/instructions/python-best-practices.instructions.md) | Python coding standards, type hints, docstrings |
-| [Data Analysis Best Practices](../.github/instructions/data-analysis-best-practices.instructions.md) | Analysis lifecycle from problem definition to deployment |
-| [Folder Structure Guide](../.github/instructions/data-analysis-folder-structure.instructions.md) | Project organization and file placement |
+| [Copilot Instructions](../.github/copilot-instructions.md) | Repo-wide coding standards and workflow guidance |
+| [Project Initialization Prompt](../.github/prompts/0-start-gen-e2-data-analysis-project.prompt.md) | Startup structure and file placement guidance |
 
 **Key Conventions**:
 - **Package Manager**: Use `uv` (NOT pip/conda)
@@ -119,7 +118,7 @@ Grouped by problem statement for traceability.
 
 **Specialized Agents for Complex Workflows**
 
-📁 **Configuration**: `.agents/`
+📁 **Configuration**: `.github/agents/`
 
 | Agent | Responsibility | Stage |
 |-------|---------------|-------|
@@ -132,11 +131,11 @@ Grouped by problem statement for traceability.
 | **QualityAgent** | Code quality and testing | 8, 10 |
 | **DocumentationAgent** | Technical documentation | 9 |
 
-**Handoff Protocol**: Agents communicate via JSON handoff files in `shared/data/3_interim/agent_handoffs/`
+**Handoff Protocol**: Agents communicate via JSON handoff files in `docs/agent-handoffs/{phase}/ps-{num}-{name}/`
 
 **Configuration Files**:
-- [Agent Configuration](../.agents/config.yml) - Pipeline orchestration settings
-- [Agent Registry](../.agents/registry.yml) - Agent capabilities and skill mappings
+- [Executor Agent](../.github/agents/executor.agent.md) - Pipeline orchestration entry point
+- [Copilot Instructions](../.github/copilot-instructions.md) - Repo-wide execution guidance
 
 ---
 
@@ -160,7 +159,7 @@ gen-e2/
 │   ├── tests/                       # Unit & integration tests
 │   └── config/                      # Shared configuration
 │
-├── problem-statements/              📦 SELF-CONTAINED ANALYSES
+├── artifacts/                       📦 SELF-CONTAINED ANALYSES
 │   └── ps-{num}-{name}/             # Complete analysis package
 │       ├── notebooks/               # Exploratory analysis
 │       ├── src/                     # Problem-specific code
@@ -172,15 +171,15 @@ gen-e2/
 ├── docs/                            📚 DOCUMENTATION
 │   ├── index.md                     # This file
 │   ├── objectives/                  # Problem statements
-│   ├── data_dictionary/             # Data documentation
+│   ├── data-dictionary/             # Data documentation
 │   ├── methodology/                 # Analytical methods
-│   └── project_context/             # Business context
+│   └── project-context/             # Business context
 │
-├── .agents/                         🤖 MULTI-AGENT SYSTEM
-│   ├── config.yml                   # Orchestration settings
-│   ├── registry.yml                 # Agent capabilities
-│   ├── templates/                   # Prompt templates
-│   └── skills/                      # Domain knowledge
+├── .github/                         🤖 MULTI-AGENT SYSTEM
+│   ├── agents/                      # Agent definitions and orchestration
+│   ├── prompts/                     # Prompt templates
+│   ├── skills/                      # Domain knowledge
+│   └── copilot-instructions.md      # Repo-wide implementation guidance
 │
 └── logs/                            📋 APPLICATION LOGS
     ├── etl/                         # Data processing logs
@@ -201,7 +200,7 @@ gen-e2/
 - [x] Environment configuration (Python 3.9, uv package manager)
 - [x] Virtual environment creation and activation
 - [x] Dependencies installation (Polars, Databricks, testing frameworks)
-- [x] Folder structure creation (hybrid shared + problem-statements)
+- [x] Folder structure creation (hybrid shared + artifacts)
 - [x] Documentation setup (README, docs/index, data dictionary)
 - [x] Configuration files (base.yml, databricks.yml, .env.example)
 
@@ -218,7 +217,7 @@ gen-e2/
 - [ ] Assess data quality (completeness, accuracy, consistency, timeliness)
 - [ ] Generate data quality reports in `logs/etl/data_quality/`
 - [ ] Document known limitations and caveats in data dictionary
-- [ ] Create data validation tests in `shared/tests/data/`
+- [ ] Create data validation tests in `artifacts/ps-{num}-{name}/tests/`
 - [ ] Identify data quality issues requiring remediation
 
 ### Phase 3: Problem Discovery 🔍
@@ -226,11 +225,11 @@ gen-e2/
 - [ ] Define concrete problem statements addressing health policy needs
 - [ ] Create user stories grouped by problem in `docs/objectives/user_stories/`
 - [ ] Prioritize analyses based on stakeholder impact and data availability
-- [ ] Create problem statement folders: `problem-statements/ps-{num}-{name}/`
+- [ ] Create problem statement folders: `artifacts/ps-{num}-{name}/`
 - [ ] Document expected outcomes and success criteria
 
 ### Phase 4: Exploratory Data Analysis 📈
-- [ ] Create EDA notebooks in `problem-statements/ps-{num}/notebooks/1_exploratory/`
+- [ ] Create EDA notebooks in `artifacts/ps-{num}-{name}/notebooks/`
 - [ ] Identify health trends, patterns, and anomalies
 - [ ] Perform statistical analysis and hypothesis testing
 - [ ] Generate summary statistics and initial visualizations
@@ -240,7 +239,7 @@ gen-e2/
 ### Phase 5: Statistical Modeling 🔬
 - [ ] Develop predictive models and forecasting algorithms
 - [ ] Perform feature engineering in `notebooks/3_feature_engineering/`
-- [ ] Train and validate models, save to `ps-{num}/models/`
+- [ ] Train and validate models, save to `artifacts/ps-{num}-{name}/models/`
 - [ ] Evaluate model performance with appropriate metrics
 - [ ] Document modeling methodology in `docs/methodology/`
 - [ ] Create model evaluation reports
@@ -248,7 +247,7 @@ gen-e2/
 ### Phase 6: Visualization & Reporting 📊
 - [ ] Create publication-quality visualizations
 - [ ] Build interactive dashboards using Plotly/Altair
-- [ ] Generate reports for stakeholders in `ps-{num}/reports/`
+- [ ] Generate reports for stakeholders in `artifacts/ps-{num}-{name}/reports/`
 - [ ] Create executive summaries highlighting key findings
 - [ ] Develop presentations for policy makers
 - [ ] Export analysis results to stakeholder-ready formats
@@ -287,9 +286,9 @@ gen-e2/
 
 ### Code Organization
 - **Shared Code**: `shared/src/` (reusable across all analyses)
-- **Problem-Specific**: `problem-statement/ps-{num}-{slug}/` (self-contained)
-- **Tests**: `shared/tests/` and `problem-statements/*/tests/`
-- **Scripts**: `scripts/shared/` (automation and utilities)
+- **Problem-Specific**: `artifacts/ps-{num}-{slug}/` (self-contained)
+- **Tests**: `artifacts/*/tests/` (and `shared/tests/` only if a shared test layer exists)
+- **Scripts**: `artifacts/ps-{num}-{name}/scripts/` (problem-specific automation and utilities)
 
 ## 📖 Documentation Types
 
@@ -324,8 +323,8 @@ Explain analytical approaches:
 ### Adding Documentation
 
 1. **Problem Statement**: Create in `objectives/problem_statements/ps-{num}-{slug}.md`
-2. **User Story**: Create in `objectives/user_stories/ps-{num}/`
-3. **Data Dictionary**: Create in `data_dictionary/{dataset}.md` and update index
+2. **User Story**: Create in `objectives/user_stories/problem-statement-{num}-{slug}/`
+3. **Data Dictionary**: Create in `data-dictionary/{dataset}.md` and update index
 4. **Methodology**: Create in `methodology/{method}.md`
 
 ### Documentation Standards
@@ -341,8 +340,8 @@ Explain analytical approaches:
 ## 🔍 Finding Information
 
 ### By Topic
-- **Business context**: `project_context/` folder
-- **Data details**: `data_dictionary/` folder
+- **Business context**: `project-context/` folder
+- **Data details**: `data-dictionary/` folder
 - **Analysis methods**: `methodology/` folder
 - **Specific problems**: `objectives/problem_statements/`
 
@@ -370,8 +369,8 @@ Explain analytical approaches:
 - [Kaggle API Documentation](https://www.kaggle.com/docs/api)
 
 ### Best Practices
-- [Python Best Practices](../.github/instructions/python-best-practices.instructions.md)
-- [Data Analysis Lifecycle](../.github/instructions/data-analysis-best-practices.instructions.md)
+- [Copilot Instructions](../.github/copilot-instructions.md)
+- [Project Initialization Prompt](../.github/prompts/0-start-gen-e2-data-analysis-project.prompt.md)
 
 ## ✅ Next Steps
 
