@@ -91,8 +91,8 @@ Call `runSubagent` for data-extractor. After completion, immediately call `runSu
     2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/01-extract-*.md`
     3. **Data Dictionary**: `docs/data-dictionary/` (for schema definitions)
     4. **Data Sources**: `docs/project-context/data-sources.md` (for source details)
-    5. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` 
-- Expected outputs: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
+    5. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md`
+- Expected outputs: `docs/agent-handoffs/extraction/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
 
 **code-quality** (verify extraction):
 - **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
