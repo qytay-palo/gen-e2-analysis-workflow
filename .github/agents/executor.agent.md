@@ -12,8 +12,10 @@ You are a executor for the implementation plan. For each task:
 Deliver the task provided in `$ARGUMENTS` by orchestrating the agents below. Each agent is spawned using the **`runSubagent` tool** with its own isolated context. Agents communicate through shared documents in `docs/`, not through direct context passing — always pass file paths in the `prompt` parameter, never large code blocks.
 
 Before starting, gather the following context:
-- **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-- **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{name}/` (Implementation details)
+- **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+- **User Stories**: `docs/objectives/user_stories/PS-{NNN}-{name}/` (all `US-*.md` files)
+- **Implementation Plans**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/` (all `IP-*.md` files)
+- **Project Settings**: Read `docs/project-context/project-settings.yml` — extract `artifact_format` (`scripts` | `notebooks` | `both`). Default to `both` if file absent.
 - **Domain Knowledge**: `docs/domain-knowledge/` — **MUST review and apply relevant guides**
 - Create the following directory structure if it does not exist, and place all generated code artifacts in the correct locations:
 
@@ -46,20 +48,39 @@ ALWAYS pass the problem statement path to all `runSubagent` calls as context, an
 
 ---
 
-## Master Trigger Checklist
+## Dynamic Execution Plan
 
-Before declaring delivery complete, confirm that `runSubagent` was called for **every** agent below. Check off each one as it completes:
+Before triggering any agent, **scan** `docs/objectives/user_stories/PS-{NNN}-{name}/` for all `US-*.md` files and map each to its implementation agent using the table below. Build a numbered sequential execution plan based on the agent dependency order.
 
-| # | Agent | Phase | Triggered | Verified by code-quality |
+### US Filename → Agent Mapping
+
+| US filename pattern | Agent | Dependency |
+|---|---|---|
+| `US-*-extract-*` | `data-extractor` | none |
+| `US-*-validate-*` | `data-validation` | data-extractor |
+| `US-*-clean-*` | `data-cleaning` | data-validation |
+| `US-*-explore-*` or `US-*-eda-*` | `exploratory-analysis` | data-cleaning |
+| `US-*-feature-*` or `US-*-engineer-*` | `feature-engineering` | data-cleaning |
+| `US-*-forecast-*` or `US-*-model-*` | `model-forecasting` | feature-engineering |
+| `US-*-narrative-*` or `US-*-report-*` | `narrative-compiler` | all prior |
+| `US-*-dashboard-*` or `US-*-tab-*` | `dashboard-visualization` | narrative-compiler |
+
+**Rules:**
+- Only include agents that have a matching US file. Skip all others and mark as N/A.
+- `exploratory-analysis` and `feature-engineering` may run in parallel if both are present.
+- `data-validation` and `data-cleaning` run sequentially (validation first, then cleaning).
+- Number agents sequentially (1, 2, 3 ...) based on dependency order — no sub-letters (no 3a/3b).
+- After scanning, display the resolved execution plan as a table before proceeding.
+
+### Master Trigger Checklist
+
+Populate from the scan results. Each row represents one agent in the resolved execution plan:
+
+| # | Agent | US File | Triggered | Outputs Verified |
 |---|---|---|---|---|
-| 1 | `data-extractor` | 1 | ☐ | ☐ |
-| 2 | `data-validation` and `data-cleaning` | 2 | ☐ | ☐ |
-| 3 | `exploratory-analysis` and `feature-engineer` | 3 | ☐ | ☐ |
-| 4 | `model-forecasting` | 4 (if applicable) | ☐ / N/A | ☐ / N/A |
-| 5 | `narrative-compiler` | 5 | ☐ / N/A | ☐ / N/A |
-| 6 | `dashboard-visualization` | 6 | ☐ | ☐ |
+| (built dynamically from scan) | | | ☐ | ☐ |
 
-> every non-N/A row must be checked. If any row is unchecked, trigger the missing agent now.
+> Every non-N/A row must be checked before declaring delivery complete.
 
 ---
 
@@ -73,168 +94,128 @@ For each agent, confirm ALL of the following before proceeding:
 
 | Check | How to Verify |
 |---|---|
-| **Handoff JSON exists** | File at `docs/agent-handoffs/{phase}/ps-{num}-{name}/*.json` is present and non-empty (> 0 bytes) |
+| **Handoff JSON exists** | File at `docs/agent-handoffs/PS-{NNN}-{name}/{agent-type}-handoff.json` is present and non-empty (> 0 bytes) |
 | **All claimed outputs exist** | Every file path listed inside the handoff JSON `outputs` array must exist on disk |
 | **Notebooks are non-empty** | Any `.ipynb` listed must be > 1 KB and contain at least one executed cell with output |
 | **No unhandled errors** | Handoff JSON `status` field must be `"success"` — any other value is a failure |
 | **Data files are non-empty** | Any CSV/Parquet written must have at least 1 data row (not header-only) |
 ---
 
-## Phase 1: data-extractor
+## Phase Execution
 
-Call `runSubagent` for data-extractor. After completion, immediately call `runSubagent` for code-quality to verify outputs.
+Execute agents in the order determined by the Dynamic Execution Plan above. For each agent:
+1. Call `runSubagent` with the agent type and the inputs listed below.
+2. After each `data-cleaning` call specifically, run `code-quality` as a **hard gate** before proceeding — cleaned data is the foundation for all downstream agents.
+3. After all agents in the plan have completed, run a **single final verification** using `code-quality` + `code-reviewer` on all outputs.
+
+### Agent Inputs Reference
 
 **data-extractor**:
 - Subagent type: `data-extractor`
-- Input: 
-    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/01-extract-*.md`
-    3. **Data Dictionary**: `docs/data-dictionary/` (for schema definitions)
-    4. **Data Sources**: `docs/project-context/data-sources.md` (for source details)
-    5. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md` and `shared/README.md` 
-- Expected outputs: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/extraction_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
-
-**code-quality** (verify extraction):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
-- Input: handoff JSON path from data-extractor; verify all claimed files exist and are non-empty
-- If FAIL: re-run `data-extractor` with explicit fix instructions before advancing
-
-**code-reviewer** (verify code):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
-- Input: handoff JSON path from data-extractor; verify all claimed files exist and are non-empty
-- If FAIL: re-run `data-extractor` with explicit fix instructions before advancing
-
-## Phase 2: data-validation and data-cleaning (parallel)
-
-**TRIGGER NOW**: Call `runSubagent` in parallel for `data-validation` and `data-cleaning`. Wait for it to complete and pass code-quality before advancing to Phase 2b.
+- Input:
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-extract-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-extract-*.md`
+    4. **Data Dictionary**: `docs/data-dictionary/` (for schema definitions)
+    5. **Data Sources**: `docs/project-context/data-sources.md`
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+    7. **Folder Structure**: `artifacts/ps-{num}-{name}/README.md` and `shared/README.md`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/data-extractor-handoff.json` + extracted raw datasets (and notebooks if `artifact_format` is `notebooks` or `both`)
 
 **data-validation**:
 - Subagent type: `data-validation`
 - Input:
-  1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-  2. **data-extractor Handoff**: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/*`
-  3. **Raw Data Files**: `shared/data/1_raw/{domain}/`
-- Expected outputs: `docs/agent-handoffs/data-validation/ps-{num}-{name}/validation_to_{next_agent}_{timestamp}.json` + jupyter notebooks
-
-**data-cleaning**
-
-**TRIGGER NOW**: Call `runSubagent` for `data-cleaning`. Must run after Phase 2a completes (requires validation handoff).
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-validate-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-validate-*.md`
+    4. **data-extractor Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-extractor-handoff.json`
+    5. **Raw Data Files**: `shared/data/1_raw/{domain}/`
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/data-validation-handoff.json`
 
 **data-cleaning**:
 - Subagent type: `data-cleaning`
 - Input:
-    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{name}/` (relevant story)
-    3. **data-validation Handoff**: `docs/agent-handoffs/data-validation/ps-{num}-{name}/*` ← requires Phase 2a output
-    4. **data-extractor Handoff**: `docs/agent-handoffs/data-extractor/ps-{num}-{name}/*`
-- Expected outputs: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/cleaning_to_{next_agent}_{timestamp}.json` + jupyter notebooks and cleaned datasets
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-clean-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-clean-*.md`
+    4. **data-validation Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-validation-handoff.json`
+    5. **data-extractor Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-extractor-handoff.json`
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/data-cleaning-handoff.json` + cleaned datasets
 
-**code-quality** (verify cleaning):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
-- Input: handoff JSON path from data-cleaning and data-validation
-- If FAIL: re-run `data-cleaning` and `data-validation` with explicit fix instructions before advancing
-
-**code-reviewer** (verify code):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
-- Input: handoff JSON path from data-cleaning and data-validation; verify all claimed files exist and are non-empty
-- If FAIL: re-run `data-cleaning` and `data-validation` with explicit fix instructions before advancing
-
-## Phase 3: exploratory-analysis and feature-engineering (Parallel)
-
-**exploratory-analysis**
-
-**TRIGGER NOW**: Call `runSubagent` in parallel for `exploratory-analysis` and `feature-engineering`. Wait for it to complete and pass code-quality before advancing to Phase 3b.
+> ⚠️ **Hard Gate**: After data-cleaning, run `code-quality` immediately. Do NOT proceed to any downstream agent unless cleaning passes.
 
 **exploratory-analysis**:
 - Subagent type: `exploratory-analysis`
 - Input:
-  1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-  2. **data-cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
-  3. **data-validation Handoff**: `docs/agent-handoffs/data-validation/ps-{num}-{name}/*`
-  4. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/` (relevant story)
-- Expected outputs: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/exploratory_to_{next_agent}_{timestamp}.json` + jupyter notebooks
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-explore-*.md` or `US-{NNN}-eda-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-explore-*.md`
+    4. **data-cleaning Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-cleaning-handoff.json`
+    5. **data-validation Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-validation-handoff.json`
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/exploratory-analysis-handoff.json`
 
 **feature-engineering**:
 - Subagent type: `feature-engineering`
 - Input:
-  1. **exploratory-analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*` ← requires Phase 3a output
-  2. **data-cleaning Handoff**: `docs/agent-handoffs/data-cleaning/ps-{num}-{name}/*`
-  3. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-engineer*-**.md` (relevant story)
-  4. **Domain Knowledge**: `docs/domain-knowledge/` — **read all relevant guides before engineering any features**
-- Expected outputs: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/features_to_{next_agent}_{timestamp}.json` + jupyter notebooks and interim datasets with new features
-
-**code-quality** (verify feature engineering and exploratory analysis):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
-- Input: handoff JSON path from feature-engineer and exploratory-analysis
-- If FAIL: re-run `feature-engineer` and `exploratory-analysis` with explicit fix instructions before advancing
-- **CRITICAL**: verify notebook is not empty (common failure) — notebook must be > 1 KB with executed cells
-
-**code-reviewer** (verify code):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
-- Input: handoff JSON path from feature-engineer and exploratory-analysis; verify all claimed files exist and are non-empty
-- If FAIL: re-run `feature-engineer` and `exploratory-analysis` with explicit fix instructions before advancing
-
-# Phase 4: model-forecasting (OPTIONAL — only if user story requires forecasting)
-
-> **Decision gate**: Check whether the user story contains a forecasting task (`{num}-**-forecast-**.md`). If YES → trigger Phase 4. If NO → skip to Phase 5 and mark Phase 4 as N/A in the Master Trigger Checklist.
-
-**TRIGGER NOW** (if applicable): Call `runSubagent` for `model-forecasting`.
+    1. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-feature-*.md` or `US-{NNN}-engineer-*.md`
+    2. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-feature-*.md`
+    3. **exploratory-analysis Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/exploratory-analysis-handoff.json` (if available)
+    4. **data-cleaning Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/data-cleaning-handoff.json`
+    5. **Domain Knowledge**: `docs/domain-knowledge/` — read all relevant guides before engineering any features
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/feature-engineering-handoff.json` + interim datasets with new features
 
 **model-forecasting**:
 - Subagent type: `model-forecasting`
 - Input:
-    1. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-forecast-**.md`
-    2. **feature-engineering Handoff**: `docs/agent-handoffs/feature-engineering/ps-{num}-{name}/*`
-    3. **exploratory-analysis Handoff**: `docs/agent-handoffs/exploratory-analysis/ps-{num}-{name}/*`
-    4. **Feature dataset**: Check handoff JSON `outputs` array for actual path
-    5. **Feature dictionary**: Check handoff JSON for actual path
+    1. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-forecast-*.md` or `US-{NNN}-model-*.md`
+    2. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-forecast-*.md`
+    3. **feature-engineering Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/feature-engineering-handoff.json`
+    4. **exploratory-analysis Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/exploratory-analysis-handoff.json`
+    5. **Feature dataset**: Check feature-engineering handoff JSON `outputs` array for actual path
     6. **Domain knowledge**: `docs/domain-knowledge/`
-- Expected outputs: `docs/agent-handoffs/model-forecasting/ps-{num}-{name}/forecasting_to_{next_agent}_{timestamp}.json` + jupyter notebooks/scripts and forecast results
-
-**code-quality** (verify forecasting):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
-- Input: handoff JSON path from model-forecasting
-- If FAIL: re-run `model-forecasting` with explicit fix instructions before advancing
-
-**code-reviewer** (verify code):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
-- Input: handoff JSON path from feature-engineer; verify all claimed files exist and are non-empty
-- If FAIL: re-run `feature-engineer` with explicit fix instructions before advancing
-
-# Phase 5: Narrative Compiler
-all `runSubagent` for narrative-compiler.
+    7. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/model-forecasting-handoff.json` + forecast results
 
 **narrative-compiler**:
 - Subagent type: `narrative-compiler`
-- Input: 
-    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **Existing Analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
-    3. **Phase 1-4 Hand-offs**: latest of each `docs/agent-handoffs/*` Check all handoff JSONs from Phases 1-4 for actual paths to notebooks, datasets, and results; pass all as input
-- Expected outputs: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/narrative_to_{next_agent}_{timestamp}.json` + jupyter notebooks and respective extracted raw datasets
-
-# Phase 6: dashboard-visualization
-
-**TRIGGER NOW**: Call `runSubagent` for `dashboard-visualization`.
+- Input:
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-narrative-*.md` or `US-{NNN}-report-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-narrative-*.md`
+    4. **Existing Analysis**: `artifacts/ps-{num}-{name}/results/` and `reports/figures/`
+    5. **All prior handoffs**: Read all JSON files in `docs/agent-handoffs/PS-{NNN}-{name}/` for actual paths to notebooks, datasets, and results
+    6. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/narrative-compiler-handoff.json`
 
 **dashboard-visualization**:
 - Subagent type: `dashboard-visualization`
 - Input:
-    1. **Problem Statement**: `docs/objectives/problem_statements/ps-{num}-{name}.md`
-    2. **User Story**: `docs/objectives/user_stories/problem-statement-{num}-{slug}/{num}-**-**-dashboard.md`
-    3. **narrative-compiler Handoff**: `docs/agent-handoffs/narrative-compiler/ps-{num}-{name}/*`
-- Expected outputs: `docs/agent-handoffs/dashboard-visualization/ps-{num}-{name}/dashboard_to_{next_agent}_{timestamp}.json` + dashboard scripts
+    1. **Problem Statement**: `docs/objectives/problem_statements/PS-{NNN}-{name}.md`
+    2. **User Story**: `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-dashboard-*.md` or `US-{NNN}-tab-*.md`
+    3. **Implementation Plan**: `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-dashboard-*.md`
+    4. **narrative-compiler Handoff**: `docs/agent-handoffs/PS-{NNN}-{name}/narrative-compiler-handoff.json`
+    5. **artifact_format**: value read from `docs/project-context/project-settings.yml`
+- Expected outputs: `docs/agent-handoffs/PS-{NNN}-{name}/dashboard-visualization-handoff.json` + dashboard scripts
 
-**code-quality** (verify dashboard):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-quality`
-- Input: handoff JSON path from dashboard-visualization
-- If FAIL: re-run `dashboard-visualization` with explicit fix instructions before advancing
+### Final Verification (Single Pass)
 
-**code-reviewer** (verify code):
-- **TRIGGER NOW**: Call `runSubagent` with subagent type `code-reviewer`
-- Input: handoff JSON path from dashboard-visualization; verify all claimed files exist and are non-empty
-- If FAIL: re-run `dashboard-visualization` with explicit fix instructions before advancing
+After all agents in the execution plan have completed, run **one** final verification:
 
-## Phase 7: Summary
+**code-quality** (final):
+- Call `runSubagent` with subagent type `code-quality`
+- Input: all handoff JSON paths in `docs/agent-handoffs/PS-{NNN}-{name}/`
+- If FAIL: re-run the specific failing agent(s) with explicit fix instructions
+
+**code-reviewer** (final):
+- Call `runSubagent` with subagent type `code-reviewer`
+- Input: all handoff JSON paths in `docs/agent-handoffs/PS-{NNN}-{name}/`
+- If FAIL: re-run the specific failing agent(s) with explicit fix instructions
+
+## Summary
 
 **STOP**: Before writing the summary, verify the Master Trigger Checklist — every non-N/A row must show ☐ checked. If any subagent was skipped, trigger it now.
 

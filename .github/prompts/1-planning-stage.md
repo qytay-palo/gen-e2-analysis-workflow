@@ -15,10 +15,10 @@ run identify-problem-statement subagent to identify and prioritize actionable an
 
 run generate-user-stories subagent in parallel for all problem statements if there are multiple problem statements, details can be found in [../agents/generate-user-stories] to generate user stories for each user story. 
 
-Validate and ensure that each user stories is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is found in the respective folders under `docs/objectives/user_stories/problem-statement-{num}-{name}/<numerical_prefix>-<story_name>.md`. Each user story should represent a distinct piece of functionality or value from an end-user perspective, following best practices in user story design and the data analysis lifecycle.
+Validate and ensure that each user stories is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is found in the respective folders under `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-{story-slug}.md`. Each user story should represent a distinct piece of functionality or value from an end-user perspective, following best practices in user story design and the data analysis lifecycle.
 
 ## 3. Generate Implementation Plan for User Stories
 
 Once user stories are generated, run generate-implementation-plan subagent for all user stories in parallel, details can be found in [../agents/generate-implementation-plan] to generate implementation plan for each user story.
 
-Keep track and ensure that each implementation plan is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is appended under each user story file.
+Keep track and ensure that each implementation plan is comprehensive, covering all necessary steps, tools, and best practices for production-grade data analytics pipelines and is saved as a **separate file** at `docs/objectives/implementation_plans/PS-{NNN}-{name}/IP-{NNN}-{story-slug}.md` (one IP file per user story).

@@ -378,10 +378,15 @@ For analytical problem statements, systematically decompose them following the d
 #### a. File Organization
 
 1. Story files should be placed in:
-   `docs/objectives/user_stories/problem-statement-{num}-{name}/<numerical_prefix>-<story_name>.md`
+   `docs/objectives/user_stories/PS-{NNN}-{name}/US-{NNN}-{story-slug}.md`
+
+   Where:
+   - `PS-{NNN}` matches the problem statement ID (e.g. `PS-001`, `PS-002`)
+   - `US-{NNN}` is the zero-padded story sequence number within the PS (e.g. `US-001`, `US-002`)
+   - `{story-slug}` is kebab-case derived from the story title (e.g. `extract-sharepoint-workforce-files`)
 
 2. Each problem statement should have an index.md, should be updated when any story is updated, created or deleted:
-   `docs/objectives/user_stories/problem-statement-{num}-{name}/index.md`
+   `docs/objectives/user_stories/PS-{NNN}-{name}/index.md`
 
    - Lists all stories in the feature
    - Brief description of each story
@@ -400,9 +405,12 @@ For analytical problem statements, systematically decompose them following the d
 
 #### b. File Naming Convention
 
-Use a two-digit sequential number prefix followed by kebab-case based on the story's core goal:
-- `01-analyze-visit-patterns-by-age.md`
-- `02-identify-seasonal-utilization-trends.md`
+Use the `US-{NNN}-{story-slug}.md` format:
+- `US-001-extract-sharepoint-workforce-files.md`
+- `US-002-validate-and-profile-data-quality.md`
+- `US-003-build-headcount-dashboard-tab.md`
+
+The `US-{NNN}` prefix must match the story sequence within the PS folder. Story slugs must reflect the lifecycle stage (e.g. `extract-`, `validate-`, `clean-`, `explore-`, `feature-`, `forecast-`, `dashboard-`).
 
 #### c. File Content Structure
 
@@ -690,7 +698,8 @@ Before finishing, verify that you have:
 - [ ] Used vertical slicing (end-to-end analytical value, not technical layers)
 - [ ] **Ensured story titles reflect their lifecycle stage** (e.g., "Exploratory Analysis", "Model Development")
 - [ ] **Verified stories build logically** from data extraction through to visualization/reporting
-- [ ] Created separate markdown files with correct naming convention
+- [ ] Created separate markdown files with correct naming convention (`US-{NNN}-{story-slug}.md` in `docs/objectives/user_stories/PS-{NNN}-{name}/`)
+- [ ] Story slugs begin with lifecycle stage keyword (`extract-`, `validate-`, `clean-`, `explore-`, `feature-`, `forecast-`, `model-`, `narrative-`, `dashboard-`, `tab-`)
 - [ ] Included all required sections: Description, Acceptance Criteria, Technical Constraints, Domain Knowledge References, Dependencies, Tasks
 - [ ] **Grouped implementation tasks by lifecycle stage** within each story
 - [ ] Updated each problem statement's `index.md` with links to new stories
